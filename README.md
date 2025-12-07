@@ -11,9 +11,53 @@ Monster Hunter Compendium è un'app mobile completa che permette di consultare t
 - 🎯 **Architettura Modulare**: Struttura pulita e scalabile con separazione delle responsabilità
 - 🔄 **API Integration**: Integrazione completa con l'API mhw-db.com
 - 📱 **Design Responsive**: Interfaccia utente ottimizzata per tutti i dispositivi
-- 🎨 **UI Moderna**: Design moderno con Material Design
+- 🎨 **UI Moderna**: Design moderno con Material Design 3 e tema personalizzato
 - ⚡ **Performance**: Caricamento ottimizzato delle immagini e caching intelligente
 - 🌐 **Navigazione Intuitiva**: Hub centrale e navigazione tramite tab bar e drawer
+- 🌓 **Dark/Light Mode**: Supporto completo per tema chiaro e scuro
+- 🎭 **Animazioni Fluide**: Transizioni animate tra schermate e micro-interazioni
+- 🎨 **Componenti Modulari**: Card con gradienti, badge rari, shimmer loader e molto altro
+
+## 🎨 Design System
+
+### Palette Colori
+
+- **Primario**: Deep Orange (#FF5722)
+- **Secondario**: Dark Brown (#3E2723)
+- **Accent/Highlight**: Verde Acido (#AEEA00)
+- **Background Chiaro**: Beige (#FFF8E1)
+- **Background Scuro**: Dark Grey (#212121)
+- **Testo Principale**: Bianco (#FFFFFF)
+- **Testo Secondario**: Light Grey (#B0BEC5)
+- **Bottoni Primari**: Gradient da Deep Orange a Dark Orange (#FF5722 → #E64A19)
+- **Alert/Error**: Red (#D32F2F)
+- **Success**: Green (#388E3C)
+- **Info**: Blue (#1976D2)
+
+### Font
+
+- **Titoli**: Font di sistema (bold)
+- **Body Text**: Roboto (regular)
+- **Bottoni e Badge**: Roboto Condensed (bold)
+
+### Componenti UI
+
+L'app include componenti modulari riutilizzabili:
+
+- **GradientCard**: Card con gradienti, animazioni scale e supporto per item rari
+- **ShimmerLoader**: Placeholder shimmer per stati di caricamento
+- **RareBadge**: Badge con gradient e glow effect per item rari
+- **GradientButton**: Bottoni con gradient e haptic feedback
+- **FadeInImageWidget**: Immagini con fade-in e cache automatica
+- **SlidableListItem**: Item con azioni swipe per azioni rapide
+
+### Animazioni
+
+- **SharedAxisTransition**: Transizioni animate tra schermate principali
+- **Fade-in**: Per immagini e dati caricati dall'API
+- **Scale-up**: Animazione per card quando cliccate
+- **Swipe-to-refresh**: Per aggiornare le liste
+- **Haptic Feedback**: Feedback tattile su interazioni principali
 
 ## 📚 Contenuti Disponibili
 
@@ -54,8 +98,14 @@ lib/
 │   ├── info/         # Pagina informazioni
 │   └── navigation/   # Navigazione principale
 └── shared/           # Componenti condivisi
-    ├── theme/        # Tema dell'app
+    ├── theme/        # Tema dell'app (light/dark)
     └── widgets/      # Widget riutilizzabili
+        ├── gradient_card.dart
+        ├── shimmer_loader.dart
+        ├── rare_badge.dart
+        ├── gradient_button.dart
+        ├── fade_in_image_widget.dart
+        └── slidable_list_item.dart
 ```
 
 Ogni feature contiene:
@@ -91,15 +141,74 @@ flutter run
 ## 📦 Dipendenze Principali
 
 - `http`: Per le chiamate API
-- `flutter/material.dart`: Framework UI
+- `google_fonts`: Font personalizzati (Roboto, Roboto Condensed)
+- `shimmer`: Placeholder shimmer per loading states
+- `cached_network_image`: Cache intelligente per immagini
+- `flutter_slidable`: Azioni swipe per liste
+- `photo_view`: Zoom immagini e mappe SVG
+- `animations`: Transizioni animate tra schermate
+- `flutter_haptic_feedback`: Feedback tattile
+- `shared_preferences`: Salvataggio preferenze (tema, ecc.)
+- `provider`: State management
+- `flutter_svg`: Supporto per immagini SVG
 
-## 🎨 Design
+## 🎨 Componenti UI
 
-L'app utilizza un tema personalizzato con colori ispirati a Monster Hunter:
-- Colore primario: Deep Orange
-- Design Material Design 3
-- Layout responsive con SafeArea
-- Immagini ottimizzate con lazy loading
+### GradientCard
+
+Card modulare con gradienti, animazioni e supporto per item rari:
+
+```dart
+GradientCard(
+  isRare: true, // Aggiunge glow effect
+  onTap: () {
+    // Navigazione
+  },
+  child: Column(
+    children: [
+      Text('Titolo', style: AppTheme.cardTitleStyle),
+      Text('Descrizione', style: AppTheme.cardBodyStyle),
+    ],
+  ),
+)
+```
+
+### ShimmerLoader
+
+Placeholder shimmer per stati di caricamento:
+
+```dart
+if (isLoading)
+  ShimmerList(itemCount: 5)
+else
+  // Contenuto reale
+```
+
+### RareBadge
+
+Badge per item rari con gradient e glow:
+
+```dart
+RareBadge(
+  text: 'RARE',
+  withGlow: true,
+)
+```
+
+### GradientButton
+
+Bottoni con gradient e haptic feedback automatico:
+
+```dart
+GradientButton(
+  text: 'Clicca qui',
+  icon: Icons.star,
+  isFullWidth: true,
+  onPressed: () {
+    // Azione
+  },
+)
+```
 
 ## 🔧 Sviluppo
 
@@ -116,6 +225,8 @@ L'app utilizza un tema personalizzato con colori ispirati a Monster Hunter:
 - Naming conventions chiare
 - Gestione errori completa
 - Loading states per tutte le operazioni asincrone
+- Componenti UI riutilizzabili e modulari
+- Supporto dark/light mode integrato
 
 ## 📝 API
 
@@ -124,6 +235,14 @@ L'app utilizza l'API pubblica [mhw-db.com](https://mhw-db.com):
 - Documentazione: [mhw-db.com docs](https://docs.mhw-db.com)
 - Supporto per query e proiezioni
 - Dati in inglese (default)
+
+## 🌓 Dark/Light Mode
+
+L'app supporta automaticamente il tema chiaro e scuro:
+- Toggle disponibile nel drawer di navigazione
+- Preferenza salvata con `shared_preferences`
+- Tutti i colori, font e gradienti si adattano automaticamente
+- Componenti UI supportano entrambi i temi
 
 ## 🤝 Contribuire
 
@@ -159,4 +278,3 @@ _Schermate dell'applicazione (da aggiungere)_
 ---
 
 ⭐ Se ti piace questo progetto, lascia una stella!
-

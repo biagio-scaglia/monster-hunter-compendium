@@ -159,7 +159,7 @@ class _LocationDetailPageState extends State<LocationDetailPage> {
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
-                  leading: const Icon(Icons.camping),
+                  leading: const Icon(Icons.place),
                   title: Text(campData['name']?.toString() ?? 'Unknown Camp'),
                   subtitle: Text('Zone: ${campData['zone'] ?? 'Unknown'}'),
                 ),
