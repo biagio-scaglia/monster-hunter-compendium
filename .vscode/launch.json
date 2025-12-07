@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter (Chrome Dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--web-browser-flag=--disable-web-security",
+        "--web-browser-flag=--disable-gpu",
+        "--web-browser-flag=--user-data-dir=C:/ChromeDev"
+      ],
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Flutter (Chrome Dev - Custom Path)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--web-browser-flag=--disable-web-security",
+        "--web-browser-flag=--disable-gpu",
+        "--web-browser-flag=--user-data-dir=C:/ChromeDev"
+      ],
+      "flutterMode": "debug",
+      "toolArgs": [
+        "--web-browser-flag=--disable-web-security",
+        "--web-browser-flag=--disable-gpu",
+        "--web-browser-flag=--user-data-dir=C:/ChromeDev"
+      ]
+    }
+  ]
+}
+

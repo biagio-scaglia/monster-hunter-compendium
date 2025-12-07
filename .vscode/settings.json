@@ -1,0 +1,13 @@
+{
+  "dart.flutterRunAdditionalArgs": [
+    "--web-browser-flag=--disable-web-security",
+    "--web-browser-flag=--disable-gpu",
+    "--web-browser-flag=--user-data-dir=C:/ChromeDev"
+  ],
+  "dart.flutterAdditionalArgs": [
+    "--web-browser-flag=--disable-web-security",
+    "--web-browser-flag=--disable-gpu",
+    "--web-browser-flag=--user-data-dir=C:/ChromeDev"
+  ]
+}
+

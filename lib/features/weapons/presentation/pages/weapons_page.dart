@@ -1,6 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../../../shared/widgets/responsive_container.dart';
-import '../../../../shared/widgets/optimized_image.dart';
+import '../../../../shared/widgets/gradient_card.dart';
+import '../../../../shared/widgets/shimmer_loader.dart';
+import '../../../../shared/widgets/fade_in_image_widget.dart';
+import '../../../../shared/widgets/gradient_button.dart';
+import '../../../../shared/widgets/search_and_filter_bar.dart';
+import '../../../../shared/widgets/filter_chip_bar.dart';
+import '../../../../shared/theme/app_theme.dart';
 import '../providers/weapons_provider.dart';
 import 'weapon_detail_page.dart';
 
@@ -13,12 +19,52 @@ class WeaponsPage extends StatefulWidget {
 
 class _WeaponsPageState extends State<WeaponsPage> {
   late WeaponsProvider provider;
+  List<FilterChipData> _typeFilters = [];
+  List<FilterChipData> _rarityFilters = [];
 
   @override
   void initState() {
     super.initState();
     provider = WeaponsProvider();
-    provider.loadWeapons();
+    provider.loadWeapons().then((_) {
+      _initializeFilters();
+    });
+  }
+
+  String _getWeaponTypeEmoji(String type) {
+    final lowerType = type.toLowerCase();
+    if (lowerType.contains('great sword') || lowerType.contains('greatsword')) return '⚔️';
+    if (lowerType.contains('long sword') || lowerType.contains('longsword')) return '🗡️';
+    if (lowerType.contains('sword & shield') || lowerType.contains('sword and shield')) return '🛡️';
+    if (lowerType.contains('dual blade')) return '⚔️⚔️';
+    if (lowerType.contains('hammer')) return '🔨';
+    if (lowerType.contains('hunting horn')) return '🎺';
+    if (lowerType.contains('lance')) return '🗡️';
+    if (lowerType.contains('gunlance')) return '🔫';
+    if (lowerType.contains('switch axe') || lowerType.contains('switchaxe')) return '⚙️';
+    if (lowerType.contains('charge blade')) return '⚡';
+    if (lowerType.contains('insect glaive')) return '🦗';
+    if (lowerType.contains('light bowgun')) return '🏹';
+    if (lowerType.contains('heavy bowgun')) return '🎯';
+    if (lowerType.contains('bow')) return '🏹';
+    return '⚔️';
+  }
+
+  void _initializeFilters() {
+    final types = provider.getAvailableTypes();
+    final rarities = provider.getAvailableRarities();
+    
+    setState(() {
+      _typeFilters = types.map((type) => FilterChipData(
+        label: '${_getWeaponTypeEmoji(type)} $type',
+        value: type,
+      )).toList();
+      
+      _rarityFilters = rarities.map((rarity) => FilterChipData(
+        label: '⭐ Rarity $rarity',
+        value: rarity.toString(),
+      )).toList();
+    });
   }
 
   @override
@@ -36,30 +82,32 @@ class _WeaponsPageState extends State<WeaponsPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              provider.refreshWeapons();
+              provider.refreshWeapons().then((_) {
+                _initializeFilters();
+              });
             },
+            tooltip: 'Refresh',
           ),
         ],
       ),
-      body: ResponsiveContainer(
-        child: ListenableBuilder(
-          listenable: provider,
-          builder: (context, _) {
-            if (provider.isLoading && provider.weapons.isEmpty) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+      body: ListenableBuilder(
+        listenable: provider,
+        builder: (context, _) {
+          if (provider.isLoading && provider.allWeapons.isEmpty) {
+            return const ShimmerList(itemCount: 8);
+          }
 
-            if (provider.hasError && provider.weapons.isEmpty) {
-              return Center(
+          if (provider.hasError && provider.allWeapons.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       size: 64,
-                      color: Colors.red,
+                      color: AppTheme.errorColor,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -72,90 +120,224 @@ class _WeaponsPageState extends State<WeaponsPage> {
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
+                    const SizedBox(height: 24),
+                    GradientButton(
+                      text: 'Retry',
+                      icon: Icons.refresh,
                       onPressed: () {
-                        provider.refreshWeapons();
+                        provider.refreshWeapons().then((_) {
+                          _initializeFilters();
+                        });
                       },
-                      child: const Text('Retry'),
                     ),
                   ],
                 ),
-              );
-            }
-
-            if (provider.weapons.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.sports_martial_arts,
-                      size: 64,
-                      color: Colors.grey,
-                    ),
-                    SizedBox(height: 16),
-                    Text('No weapons found'),
-                  ],
-                ),
-              );
-            }
-
-            return RefreshIndicator(
-              onRefresh: () => provider.refreshWeapons(),
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: provider.weapons.length,
-                itemBuilder: (context, index) {
-                  final weapon = provider.weapons[index];
-                  return Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: weapon.iconUrl != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: OptimizedImage(
-                                imageUrl: weapon.iconUrl,
-                                width: 60,
-                                height: 60,
-                                errorWidget: const Icon(Icons.sports_martial_arts, size: 40),
-                              ),
-                            )
-                          : const Icon(Icons.sports_martial_arts, size: 40),
-                      title: Text(
-                        weapon.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Type: ${weapon.type}'),
-                          Text('Rarity: ${weapon.rarity}'),
-                          if (weapon.attack != null && weapon.attack!['display'] != null)
-                            Text('Attack: ${weapon.attack!['display']}'),
-                        ],
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => WeaponDetailPage(
-                              weaponId: weapon.id,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
               ),
             );
-          },
-        ),
+          }
+
+          final weapons = provider.weapons;
+          final hasResults = weapons.isNotEmpty;
+          final hasFilters = provider.searchQuery.isNotEmpty ||
+              provider.selectedTypes.isNotEmpty ||
+              provider.selectedRarities.isNotEmpty;
+
+          return Column(
+            children: [
+              SearchAndFilterBar(
+                searchHint: 'Search weapons...',
+                onSearchChanged: (query) {
+                  provider.setSearchQuery(query);
+                },
+                filters: [],
+                selectedFilters: [],
+                onFiltersChanged: (_) {},
+                showFilters: false,
+              ),
+              if (_typeFilters.isNotEmpty)
+                FilterChipBar(
+                  filters: _typeFilters,
+                  selectedFilters: provider.selectedTypes,
+                  onFiltersChanged: (filters) {
+                    provider.setSelectedTypes(filters);
+                  },
+                ),
+              if (_rarityFilters.isNotEmpty)
+                FilterChipBar(
+                  filters: _rarityFilters,
+                  selectedFilters: provider.selectedRarities.map((r) => r.toString()).toList(),
+                  onFiltersChanged: (filters) {
+                    provider.setSelectedRarities(filters.map((f) => int.tryParse(f) ?? 0).toList());
+                  },
+                ),
+              Expanded(
+                child: hasResults
+                    ? RefreshIndicator(
+                        onRefresh: () => provider.refreshWeapons(),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: weapons.length,
+                          itemBuilder: (context, index) {
+                            final weapon = weapons[index];
+                            return GradientCard(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => WeaponDetailPage(
+                                      weaponId: weapon.id,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Builder(
+                                builder: (context) {
+                                  if (weapon.iconUrl != null) {
+                                    if (kDebugMode) {
+                                      print('🎨 [WeaponsPage] Rendering immagine per: ${weapon.name}');
+                                      print('🎨 [WeaponsPage] URL: ${weapon.iconUrl}');
+                                    }
+                                    return Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: FadeInImageWidget(
+                                            imageUrl: weapon.iconUrl!,
+                                            width: 60,
+                                            height: 60,
+                                            fit: BoxFit.cover,
+                                            placeholder: Container(
+                                              width: 60,
+                                              height: 60,
+                                              color: Colors.grey[300],
+                                              child: const Center(
+                                                child: CircularProgressIndicator(strokeWidth: 2),
+                                              ),
+                                            ),
+                                            errorWidget: Container(
+                                              width: 60,
+                                              height: 60,
+                                              color: Colors.grey[300],
+                                              child: const Icon(Icons.error_outline, color: Colors.red, size: 30),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                weapon.name,
+                                                style: AppTheme.cardTitleStyle,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Type: ${weapon.type}',
+                                                style: AppTheme.cardBodyStyle,
+                                              ),
+                                              Text(
+                                                'Rarity: ${weapon.rarity}',
+                                                style: AppTheme.cardBodyStyle,
+                                              ),
+                                              if (weapon.attack != null && weapon.attack!['display'] != null)
+                                                Text(
+                                                  'Attack: ${weapon.attack!['display']}',
+                                                  style: AppTheme.cardBodyStyle,
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                        const Icon(Icons.arrow_forward_ios),
+                                      ],
+                                    );
+                                  } else {
+                                    if (kDebugMode) {
+                                      print('⚠️ [WeaponsPage] Nessun iconUrl per: ${weapon.name}');
+                                    }
+                                    return Row(
+                                      children: [
+                                        Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(8),
+                                            color: Colors.grey[300],
+                                          ),
+                                          child: const Icon(Icons.sports_martial_arts, size: 40),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                weapon.name,
+                                                style: AppTheme.cardTitleStyle,
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Type: ${weapon.type}',
+                                                style: AppTheme.cardBodyStyle,
+                                              ),
+                                              Text(
+                                                'Rarity: ${weapon.rarity}',
+                                                style: AppTheme.cardBodyStyle,
+                                              ),
+                                              if (weapon.attack != null && weapon.attack!['display'] != null)
+                                                Text(
+                                                  'Attack: ${weapon.attack!['display']}',
+                                                  style: AppTheme.cardBodyStyle,
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                        const Icon(Icons.arrow_forward_ios),
+                                      ],
+                                    );
+                                  }
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              hasFilters ? Icons.filter_alt_off : Icons.sports_martial_arts,
+                              size: 64,
+                              color: Theme.of(context).iconTheme.color,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              hasFilters
+                                  ? 'No weapons match your filters'
+                                  : 'No weapons found',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            if (hasFilters) ...[
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () {
+                                  provider.setSearchQuery('');
+                                  provider.setSelectedTypes([]);
+                                  provider.setSelectedRarities([]);
+                                },
+                                child: const Text('Clear filters'),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
-

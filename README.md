@@ -138,6 +138,28 @@ flutter pub get
 flutter run
 ```
 
+### Eseguire con Chrome in modalità sviluppo (per risolvere problemi CORS)
+
+Per risolvere problemi di CORS durante lo sviluppo, puoi usare Chrome con flag personalizzati:
+
+**Opzione 1: Script batch (Windows)**
+```bash
+run_chrome_dev.bat
+```
+
+**Opzione 2: Script PowerShell (Windows)**
+```powershell
+.\run_chrome_dev.ps1
+```
+
+**Opzione 3: Comando manuale**
+```bash
+flutter run -d chrome --web-browser-flag="--disable-web-security" --web-browser-flag="--disable-gpu" --web-browser-flag="--user-data-dir=C:/ChromeDev"
+```
+
+**Opzione 4: VS Code**
+Usa la configurazione "Flutter (Chrome Dev)" dal menu di debug (F5).
+
 ## 📦 Dipendenze Principali
 
 - `http`: Per le chiamate API

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../shared/widgets/responsive_container.dart';
+import '../../../../shared/widgets/gradient_card.dart';
+import '../../../../shared/widgets/shimmer_loader.dart';
+import '../../../../shared/widgets/gradient_button.dart';
+import '../../../../shared/widgets/search_and_filter_bar.dart';
+import '../../../../shared/theme/app_theme.dart';
 import '../providers/skills_provider.dart';
 import 'skill_detail_page.dart';
 
@@ -37,28 +41,28 @@ class _SkillsPageState extends State<SkillsPage> {
             onPressed: () {
               provider.refreshSkills();
             },
+            tooltip: 'Refresh',
           ),
         ],
       ),
-      body: ResponsiveContainer(
-        child: ListenableBuilder(
-          listenable: provider,
-          builder: (context, _) {
-            if (provider.isLoading && provider.skills.isEmpty) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
+      body: ListenableBuilder(
+        listenable: provider,
+        builder: (context, _) {
+          if (provider.isLoading && provider.allSkills.isEmpty) {
+            return const ShimmerList(itemCount: 8);
+          }
 
-            if (provider.hasError && provider.skills.isEmpty) {
-              return Center(
+          if (provider.hasError && provider.allSkills.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_outline,
                       size: 64,
-                      color: Colors.red,
+                      color: AppTheme.errorColor,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -71,79 +75,132 @@ class _SkillsPageState extends State<SkillsPage> {
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
+                    const SizedBox(height: 24),
+                    GradientButton(
+                      text: 'Retry',
+                      icon: Icons.refresh,
                       onPressed: () {
                         provider.refreshSkills();
                       },
-                      child: const Text('Retry'),
                     ),
                   ],
                 ),
-              );
-            }
-
-            if (provider.skills.isEmpty) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.stars,
-                      size: 64,
-                      color: Colors.grey,
-                    ),
-                    SizedBox(height: 16),
-                    Text('No skills found'),
-                  ],
-                ),
-              );
-            }
-
-            return RefreshIndicator(
-              onRefresh: () => provider.refreshSkills(),
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: provider.skills.length,
-                itemBuilder: (context, index) {
-                  final skill = provider.skills[index];
-                  return Card(
-                    elevation: 2,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: const Icon(Icons.stars, size: 40),
-                      title: Text(
-                        skill.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(skill.description),
-                          if (skill.ranks.isNotEmpty)
-                            Text('Ranks: ${skill.ranks.length}'),
-                        ],
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SkillDetailPage(
-                              skillId: skill.id,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
               ),
             );
-          },
-        ),
+          }
+
+          final skills = provider.skills;
+          final hasResults = skills.isNotEmpty;
+          final hasFilters = provider.searchQuery.isNotEmpty;
+
+          return Column(
+            children: [
+              SearchAndFilterBar(
+                searchHint: 'Search skills...',
+                onSearchChanged: (query) {
+                  provider.setSearchQuery(query);
+                },
+                filters: [],
+                selectedFilters: [],
+                onFiltersChanged: (_) {},
+                showFilters: false,
+              ),
+              Expanded(
+                child: hasResults
+                    ? RefreshIndicator(
+                        onRefresh: () => provider.refreshSkills(),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: skills.length,
+                          itemBuilder: (context, index) {
+                            final skill = skills[index];
+                            return GradientCard(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SkillDetailPage(
+                                      skillId: skill.id,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Colors.grey[300],
+                                    ),
+                                    child: const Icon(Icons.stars, size: 40),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          skill.name,
+                                          style: AppTheme.cardTitleStyle,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          skill.description,
+                                          style: AppTheme.cardBodyStyle,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        if (skill.ranks.isNotEmpty)
+                                          Text(
+                                            'Ranks: ${skill.ranks.length}',
+                                            style: AppTheme.cardBodyStyle,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_forward_ios),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              hasFilters ? Icons.filter_alt_off : Icons.stars,
+                              size: 64,
+                              color: Theme.of(context).iconTheme.color,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              hasFilters
+                                  ? 'No skills match your filters'
+                                  : 'No skills found',
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            if (hasFilters) ...[
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: () {
+                                  provider.setSearchQuery('');
+                                },
+                                child: const Text('Clear filters'),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
-

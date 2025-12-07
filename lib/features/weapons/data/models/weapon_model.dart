@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class WeaponModel {
   final int id;
   final String name;
@@ -39,13 +41,57 @@ class WeaponModel {
   }
   
   String? get imageUrl {
-    if (assets == null) return null;
-    return assets!['image'] as String?;
+    if (assets == null) {
+      if (kDebugMode) {
+        print('⚠️ [WeaponModel] Assets null per arma: $name');
+      }
+      return null;
+    }
+    final url = assets!['image'] as String?;
+    if (url == null || url.isEmpty) {
+      if (kDebugMode) {
+        print('⚠️ [WeaponModel] Image URL null o vuoto per arma: $name');
+      }
+      return null;
+    }
+    // Gli URL dall'API sono già assoluti (https://assets.mhw-db.com/...)
+    // Se per qualche motivo fossero relativi, li convertiamo
+    final finalUrl = url.startsWith('http://') || url.startsWith('https://')
+        ? url
+        : 'https://mhw-db.com' + (url.startsWith('/') ? url : '/$url');
+    
+    if (kDebugMode) {
+      print('✅ [WeaponModel] Image URL per "$name": $finalUrl');
+    }
+    
+    return finalUrl;
   }
   
   String? get iconUrl {
-    if (assets == null) return null;
-    return assets!['icon'] as String?;
+    if (assets == null) {
+      if (kDebugMode) {
+        print('⚠️ [WeaponModel] Assets null per arma: $name');
+      }
+      return null;
+    }
+    final url = assets!['icon'] as String?;
+    if (url == null || url.isEmpty) {
+      if (kDebugMode) {
+        print('⚠️ [WeaponModel] Icon URL null o vuoto per arma: $name');
+      }
+      return null;
+    }
+    // Gli URL dall'API sono già assoluti (https://assets.mhw-db.com/...)
+    // Se per qualche motivo fossero relativi, li convertiamo
+    final finalUrl = url.startsWith('http://') || url.startsWith('https://')
+        ? url
+        : 'https://mhw-db.com' + (url.startsWith('/') ? url : '/$url');
+    
+    if (kDebugMode) {
+      print('✅ [WeaponModel] Icon URL per "$name": $finalUrl');
+    }
+    
+    return finalUrl;
   }
 }
 

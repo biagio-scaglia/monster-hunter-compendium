@@ -17,8 +17,10 @@ class MonsterRepository {
     try {
       final queryParams = <String, String>{};
       if (query != null) queryParams['q'] = query;
+      // Richiedi sempre gli assets per avere le immagini
+      queryParams['p'] = '{"id":true,"name":true,"type":true,"species":true,"description":true,"assets":true}';
       if (limit != null) {
-        queryParams['p'] = '{"id":true,"name":true,"type":true,"species":true,"description":true}';
+        queryParams['limit'] = limit.toString();
       }
 
       final uri = Uri.parse(ApiConstants.baseUrl + ApiConstants.monstersEndpoint)
@@ -36,7 +38,7 @@ class MonsterRepository {
                   return MonsterModel.fromJson(item as Map<String, dynamic>);
                 } catch (e) {
                   if (kDebugMode) {
-                    print('Error parsing monster: $e');
+                    print('❌ [MonsterRepository] Error parsing monster: $e');
                   }
                   return null;
                 }
@@ -44,16 +46,37 @@ class MonsterRepository {
               .whereType<MonsterModel>()
               .toList();
 
+          if (kDebugMode) {
+            print('🐉 [MonsterRepository] Caricati ${monsters.length} mostri');
+            if (monsters.isNotEmpty) {
+              final firstMonster = monsters.first;
+              print('🐉 [MonsterRepository] Primo mostro: ${firstMonster.name}');
+              print('🐉 [MonsterRepository] Assets: ${firstMonster.assets}');
+              print('🐉 [MonsterRepository] Icon URL: ${firstMonster.iconUrl}');
+              print('🐉 [MonsterRepository] Image URL: ${firstMonster.imageUrl}');
+            }
+          }
+
           return monsters;
         }
 
         return [];
       } else if (response.statusCode == 404) {
+        if (kDebugMode) {
+          print('❌ [MonsterRepository] 404 - Nessun mostro trovato');
+        }
         return [];
       } else {
+        if (kDebugMode) {
+          print('❌ [MonsterRepository] Errore ${response.statusCode}: ${response.body}');
+        }
         throw Exception('Failed to load monsters: ${response.statusCode}');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print('❌ [MonsterRepository] Errore durante il fetch: $e');
+        print('❌ [MonsterRepository] Stack trace: $stackTrace');
+      }
       throw Exception('Error fetching monsters: $e');
     }
   }

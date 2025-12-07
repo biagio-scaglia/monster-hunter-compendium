@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class MonsterModel {
   final int id;
   final String name;
@@ -10,6 +12,7 @@ class MonsterModel {
   final List<dynamic> resistances;
   final List<dynamic> weaknesses;
   final List<dynamic> rewards;
+  final Map<String, dynamic>? assets;
 
   MonsterModel({
     required this.id,
@@ -23,6 +26,7 @@ class MonsterModel {
     this.resistances = const [],
     this.weaknesses = const [],
     this.rewards = const [],
+    this.assets,
   });
 
   factory MonsterModel.fromJson(Map<String, dynamic> json) {
@@ -40,7 +44,58 @@ class MonsterModel {
       resistances: json['resistances'] is List ? json['resistances'] as List<dynamic> : [],
       weaknesses: json['weaknesses'] is List ? json['weaknesses'] as List<dynamic> : [],
       rewards: json['rewards'] is List ? json['rewards'] as List<dynamic> : [],
+      assets: json['assets'] as Map<String, dynamic>?,
     );
+  }
+
+  String? get imageUrl {
+    if (assets == null) {
+      if (kDebugMode) {
+        print('⚠️ [MonsterModel] Assets null per mostro: $name');
+      }
+      return null;
+    }
+    final url = assets!['image'] as String?;
+    if (url == null || url.isEmpty) {
+      if (kDebugMode) {
+        print('⚠️ [MonsterModel] Image URL null o vuoto per mostro: $name');
+      }
+      return null;
+    }
+    final finalUrl = url.startsWith('http://') || url.startsWith('https://')
+        ? url
+        : 'https://mhw-db.com' + (url.startsWith('/') ? url : '/$url');
+    
+    if (kDebugMode) {
+      print('✅ [MonsterModel] Image URL per "$name": $finalUrl');
+    }
+    
+    return finalUrl;
+  }
+
+  String? get iconUrl {
+    if (assets == null) {
+      if (kDebugMode) {
+        print('⚠️ [MonsterModel] Assets null per mostro: $name');
+      }
+      return null;
+    }
+    final url = assets!['icon'] as String?;
+    if (url == null || url.isEmpty) {
+      if (kDebugMode) {
+        print('⚠️ [MonsterModel] Icon URL null o vuoto per mostro: $name');
+      }
+      return null;
+    }
+    final finalUrl = url.startsWith('http://') || url.startsWith('https://')
+        ? url
+        : 'https://mhw-db.com' + (url.startsWith('/') ? url : '/$url');
+    
+    if (kDebugMode) {
+      print('✅ [MonsterModel] Icon URL per "$name": $finalUrl');
+    }
+    
+    return finalUrl;
   }
 
   Map<String, dynamic> toJson() {

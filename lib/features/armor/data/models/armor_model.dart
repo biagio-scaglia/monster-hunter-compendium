@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class ArmorModel {
   final int id;
   final String name;
@@ -41,18 +43,44 @@ class ArmorModel {
     );
   }
   
+  String? _getAbsoluteUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    // Se l'URL è relativo, convertilo in assoluto
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return 'https://mhw-db.com' + (url.startsWith('/') ? url : '/$url');
+  }
+
   String? get imageMaleUrl {
-    if (assets == null) return null;
-    return assets!['imageMale'] as String?;
+    if (assets == null) {
+      if (kDebugMode) {
+        print('⚠️ [ArmorModel] Assets null per armor: $name');
+      }
+      return null;
+    }
+    final url = _getAbsoluteUrl(assets!['imageMale'] as String?);
+    if (url != null && kDebugMode) {
+      print('✅ [ArmorModel] ImageMale URL per "$name": $url');
+    }
+    return url;
   }
   
   String? get imageFemaleUrl {
     if (assets == null) return null;
-    return assets!['imageFemale'] as String?;
+    final url = _getAbsoluteUrl(assets!['imageFemale'] as String?);
+    if (url != null && kDebugMode) {
+      print('✅ [ArmorModel] ImageFemale URL per "$name": $url');
+    }
+    return url;
   }
   
   String? get imageUrl {
-    return imageMaleUrl ?? imageFemaleUrl;
+    final url = imageMaleUrl ?? imageFemaleUrl;
+    if (url == null && kDebugMode) {
+      print('⚠️ [ArmorModel] Nessun image URL disponibile per armor: $name');
+    }
+    return url;
   }
 }
 

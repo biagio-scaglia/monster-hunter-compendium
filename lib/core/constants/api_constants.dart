@@ -65,5 +65,19 @@ class ApiConstants {
   static String getMotionValuesByWeaponType(String weaponType) {
     return '$motionValuesEndpoint/$weaponType';
   }
+
+  /// Converte un URL relativo in un URL assoluto
+  static String getAbsoluteImageUrl(String? relativeUrl) {
+    if (relativeUrl == null || relativeUrl.isEmpty) return '';
+    if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
+      return relativeUrl;
+    }
+    // Se inizia con /, aggiungi il baseUrl
+    if (relativeUrl.startsWith('/')) {
+      return baseUrl + relativeUrl;
+    }
+    // Altrimenti aggiungi / prima
+    return baseUrl + '/' + relativeUrl;
+  }
 }
 
