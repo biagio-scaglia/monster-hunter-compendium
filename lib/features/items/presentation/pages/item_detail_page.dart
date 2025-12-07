@@ -28,20 +28,26 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   }
 
   Future<void> loadItem() async {
+    // Inizia il caricamento
     setState(() {
       isLoading = true;
       error = null;
     });
 
     try {
+      // Carica l'oggetto dal repository
       final loadedItem = await repository.getItemById(widget.itemId);
+      
+      // Salva l'oggetto caricato
       setState(() {
         item = loadedItem;
         isLoading = false;
       });
     } catch (e) {
+      // Se c'è un errore, salvalo e ferma il caricamento
+      final errorMessage = e.toString().replaceAll('Exception: ', '');
       setState(() {
-        error = e.toString().replaceAll('Exception: ', '');
+        error = errorMessage;
         isLoading = false;
       });
     }
@@ -60,12 +66,14 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
   }
 
   Widget _buildBody() {
+    // Mostra il caricamento
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
 
+    // Mostra l'errore se c'è
     if (error != null) {
       return Center(
         child: Column(
@@ -100,6 +108,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
       );
     }
 
+    // Se l'oggetto non esiste, mostra un messaggio
     if (item == null) {
       return const Center(
         child: Text('Item not found'),

@@ -21,9 +21,17 @@ class ArmorProvider extends ChangeNotifier {
   ArmorProvider({ArmorRepository? repository})
       : repository = repository ?? ArmorRepository();
 
-  List<ArmorModel> get armor => _filteredArmor.isEmpty && _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedRanks.isEmpty && _selectedRarities.isEmpty
-      ? _armor
-      : _filteredArmor;
+  // Mostra le armature filtrate se ci sono filtri attivi, altrimenti mostra tutte le armature
+  List<ArmorModel> get armor {
+    final hasNoFilters = _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedRanks.isEmpty && _selectedRarities.isEmpty;
+    final hasNoFilteredResults = _filteredArmor.isEmpty;
+    
+    if (hasNoFilters && hasNoFilteredResults) {
+      return _armor;
+    } else {
+      return _filteredArmor;
+    }
+  }
   List<ArmorModel> get allArmor => _armor;
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
@@ -74,7 +82,10 @@ class ArmorProvider extends ChangeNotifier {
   }
 
   Future<void> loadMoreArmor() async {
-    if (!_isLoadingMore && _hasMore && _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedRanks.isEmpty && _selectedRarities.isEmpty) {
+    final canLoadMore = !_isLoadingMore && _hasMore;
+    final hasNoFilters = _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedRanks.isEmpty && _selectedRarities.isEmpty;
+    
+    if (canLoadMore && hasNoFilters) {
       await loadArmor(reset: false);
     }
   }
@@ -105,27 +116,44 @@ class ArmorProvider extends ChangeNotifier {
 
   void _applyFilters() {
     _filteredArmor = _armor.where((armor) {
-      // Search filter
+      // Controlla se corrisponde alla ricerca
       if (_searchQuery.isNotEmpty) {
-        final matchesSearch = armor.name.toLowerCase().contains(_searchQuery) ||
-            armor.type.toLowerCase().contains(_searchQuery) ||
-            armor.rank.toLowerCase().contains(_searchQuery);
-        if (!matchesSearch) return false;
+        final armorName = armor.name.toLowerCase();
+        final armorType = armor.type.toLowerCase();
+        final armorRank = armor.rank.toLowerCase();
+        final searchLower = _searchQuery.toLowerCase();
+        
+        final matchesName = armorName.contains(searchLower);
+        final matchesType = armorType.contains(searchLower);
+        final matchesRank = armorRank.contains(searchLower);
+        
+        if (!matchesName && !matchesType && !matchesRank) {
+          return false;
+        }
       }
 
-      // Type filter
+      // Controlla se corrisponde al tipo selezionato
       if (_selectedTypes.isNotEmpty) {
-        if (!_selectedTypes.contains(armor.type)) return false;
+        final armorType = armor.type;
+        if (!_selectedTypes.contains(armorType)) {
+          return false;
+        }
       }
 
-      // Rank filter
+      // Controlla se corrisponde al rango selezionato
       if (_selectedRanks.isNotEmpty) {
-        if (!_selectedRanks.contains(armor.rank)) return false;
+        final armorRank = armor.rank;
+        if (!_selectedRanks.contains(armorRank)) {
+          return false;
+        }
       }
 
-      // Rarity filter
+      // Controlla se corrisponde alla rarità selezionata
       if (_selectedRarities.isNotEmpty) {
-        if (!_selectedRarities.contains(armor.rarity)) return false;
+        final armorRarity = armor.rarity;
+        if (!_selectedRarities.contains(armorRarity)) {
+          return false;
+        }
       }
 
       return true;

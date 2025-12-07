@@ -112,32 +112,8 @@ class _ArmorDetailPageState extends State<ArmorDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (armor!.imageUrl != null)
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: OptimizedImage(
-                  imageUrl: armor!.imageUrl,
-                  width: double.infinity,
-                  height: 300,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            )
-          else
-            Container(
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.shield,
-                size: 100,
-                color: Colors.grey,
-              ),
-            ),
+          // Mostra le immagini maschili e femminili se disponibili
+          _buildArmorImages(),
           const SizedBox(height: 24),
           Text(
             armor!.name,
@@ -211,16 +187,196 @@ class _ArmorDetailPageState extends State<ArmorDetailPage> {
               Icons.settings,
             ),
           ],
+          // Mostra le skill con dettagli
           if (armor!.skills != null && armor!.skills!.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _buildInfoCard(
+            const SizedBox(height: 24),
+            Text(
               'Skills',
-              armor!.skills!.length.toString(),
-              Icons.stars,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
+            const SizedBox(height: 16),
+            ...armor!.skills!.map((skill) {
+              final skillData = skill as Map<String, dynamic>;
+              final skillName = skillData['skillName']?.toString() ?? 'Unknown';
+              final level = skillData['level']?.toString() ?? '0';
+              final description = skillData['description']?.toString() ?? '';
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '$skillName (Level $level)',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      if (description.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(description),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+          // Mostra gli attributes
+          if (armor!.attributes != null && armor!.attributes!.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              'Attributes',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: armor!.attributes!.entries.map((entry) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Text(
+                            '${entry.key}: ',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(entry.value.toString()),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+          // Mostra il crafting
+          if (armor!.crafting != null) ...[
+            const SizedBox(height: 24),
+            Text(
+              'Crafting Materials',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            _buildCraftingMaterials(armor!.crafting!),
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildArmorImages() {
+    final imageMale = armor!.imageMaleUrl;
+    final imageFemale = armor!.imageFemaleUrl;
+
+    // Se non ci sono immagini, mostra un'icona
+    if (imageMale == null && imageFemale == null) {
+      return Container(
+        width: double.infinity,
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.shield,
+            size: 100,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    // Mostra entrambe le immagini se disponibili
+    return Column(
+      children: [
+        if (imageMale != null) ...[
+          Text(
+            'Male',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: OptimizedImage(
+                imageUrl: imageMale,
+                width: 150,
+                height: 150,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (imageFemale != null) ...[
+          Text(
+            'Female',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: OptimizedImage(
+                imageUrl: imageFemale,
+                width: 150,
+                height: 150,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildCraftingMaterials(Map<String, dynamic> crafting) {
+    final materials = crafting['materials'] as List<dynamic>?;
+    
+    if (materials == null || materials.isEmpty) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Text('No crafting materials available'),
+        ),
+      );
+    }
+
+    return Column(
+      children: materials.map((material) {
+        final materialData = material as Map<String, dynamic>;
+        final item = materialData['item'] as Map<String, dynamic>?;
+        final quantity = materialData['quantity']?.toString() ?? '0';
+        final itemName = item?['name']?.toString() ?? 'Unknown';
+        return Card(
+          elevation: 2,
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            leading: const Icon(Icons.inventory_2),
+            title: Text(itemName),
+            subtitle: Text('Quantity: $quantity'),
+          ),
+        );
+      }).toList(),
     );
   }
 

@@ -47,20 +47,29 @@ class ArmorRepository {
     }
   }
 
+  // Carica una singola armatura tramite ID con tutte le informazioni complete
   Future<ArmorModel> getArmorById(int armorId) async {
     try {
+      // Costruisce l'URL per l'armatura specifica
+      // L'API restituisce già tutte le informazioni per un singolo elemento
       final uri = Uri.parse(
         ApiConstants.baseUrl + ApiConstants.getArmorById(armorId),
       );
 
+      // Fa la richiesta HTTP
       final response = await client.get(uri);
 
+      // Se la richiesta è andata a buon fine
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         return ArmorModel.fromJson(jsonData as Map<String, dynamic>);
-      } else if (response.statusCode == 404) {
+      } 
+      // Se non trovato, lancia un errore
+      else if (response.statusCode == 404) {
         throw Exception('Armor not found');
-      } else {
+      } 
+      // Altrimenti lancia un errore
+      else {
         throw Exception('Failed to load armor: ${response.statusCode}');
       }
     } catch (e) {

@@ -61,10 +61,12 @@ class _GradientCardState extends State<GradientCard>
 
   @override
   Widget build(BuildContext context) {
+    // Scegli il gradiente in base al tema
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final gradient = widget.customGradient ??
         (isDark ? AppTheme.darkCardGradient : AppTheme.cardGradient);
 
+    // Crea la card con gradiente e ombra
     Widget card = Container(
       margin: widget.margin ?? const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -94,6 +96,7 @@ class _GradientCardState extends State<GradientCard>
       ),
     );
 
+    // Se la card è cliccabile, aggiungi l'animazione
     if (widget.onTap != null) {
       return GestureDetector(
         onTapDown: _handleTapDown,
@@ -106,6 +109,7 @@ class _GradientCardState extends State<GradientCard>
       );
     }
 
+    // Altrimenti restituisci la card normale
     return card;
   }
 }

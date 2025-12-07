@@ -14,9 +14,17 @@ class SkillsProvider extends ChangeNotifier {
   SkillsProvider({SkillRepository? repository})
       : repository = repository ?? SkillRepository();
 
-  List<SkillModel> get skills => _filteredSkills.isEmpty && _searchQuery.isEmpty
-      ? _skills
-      : _filteredSkills;
+  // Mostra le skill filtrate se c'è una ricerca attiva, altrimenti mostra tutte le skill
+  List<SkillModel> get skills {
+    final hasNoSearch = _searchQuery.isEmpty;
+    final hasNoFilteredResults = _filteredSkills.isEmpty;
+    
+    if (hasNoSearch && hasNoFilteredResults) {
+      return _skills;
+    } else {
+      return _filteredSkills;
+    }
+  }
   List<SkillModel> get allSkills => _skills;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -51,11 +59,18 @@ class SkillsProvider extends ChangeNotifier {
 
   void _applyFilters() {
     _filteredSkills = _skills.where((skill) {
-      // Search filter
+      // Controlla se corrisponde alla ricerca
       if (_searchQuery.isNotEmpty) {
-        final matchesSearch = skill.name.toLowerCase().contains(_searchQuery) ||
-            skill.description.toLowerCase().contains(_searchQuery);
-        if (!matchesSearch) return false;
+        final skillName = skill.name.toLowerCase();
+        final skillDescription = skill.description.toLowerCase();
+        final searchLower = _searchQuery.toLowerCase();
+        
+        final matchesName = skillName.contains(searchLower);
+        final matchesDescription = skillDescription.contains(searchLower);
+        
+        if (!matchesName && !matchesDescription) {
+          return false;
+        }
       }
 
       return true;

@@ -20,9 +20,17 @@ class MonstersProvider extends ChangeNotifier {
   MonstersProvider({MonsterRepository? repository})
       : repository = repository ?? MonsterRepository();
 
-  List<MonsterModel> get monsters => _filteredMonsters.isEmpty && _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedSpecies.isEmpty
-      ? _monsters
-      : _filteredMonsters;
+  // Mostra i mostri filtrati se ci sono filtri attivi, altrimenti mostra tutti i mostri
+  List<MonsterModel> get monsters {
+    final hasNoFilters = _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedSpecies.isEmpty;
+    final hasNoFilteredResults = _filteredMonsters.isEmpty;
+    
+    if (hasNoFilters && hasNoFilteredResults) {
+      return _monsters;
+    } else {
+      return _filteredMonsters;
+    }
+  }
   List<MonsterModel> get allMonsters => _monsters;
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
@@ -72,7 +80,10 @@ class MonstersProvider extends ChangeNotifier {
   }
 
   Future<void> loadMoreMonsters() async {
-    if (!_isLoadingMore && _hasMore && _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedSpecies.isEmpty) {
+    final canLoadMore = !_isLoadingMore && _hasMore;
+    final hasNoFilters = _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedSpecies.isEmpty;
+    
+    if (canLoadMore && hasNoFilters) {
       await loadMonsters(reset: false);
     }
   }
@@ -98,23 +109,38 @@ class MonstersProvider extends ChangeNotifier {
 
   void _applyFilters() {
     _filteredMonsters = _monsters.where((monster) {
-      // Search filter
+      // Controlla se corrisponde alla ricerca
       if (_searchQuery.isNotEmpty) {
-        final matchesSearch = monster.name.toLowerCase().contains(_searchQuery) ||
-            (monster.description?.toLowerCase().contains(_searchQuery) ?? false) ||
-            monster.type.toLowerCase().contains(_searchQuery) ||
-            monster.species.toLowerCase().contains(_searchQuery);
-        if (!matchesSearch) return false;
+        final searchLower = _searchQuery.toLowerCase();
+        final monsterName = monster.name.toLowerCase();
+        final monsterDescription = monster.description?.toLowerCase() ?? '';
+        final monsterType = monster.type.toLowerCase();
+        final monsterSpecies = monster.species.toLowerCase();
+        
+        final matchesName = monsterName.contains(searchLower);
+        final matchesDescription = monsterDescription.contains(searchLower);
+        final matchesType = monsterType.contains(searchLower);
+        final matchesSpecies = monsterSpecies.contains(searchLower);
+        
+        if (!matchesName && !matchesDescription && !matchesType && !matchesSpecies) {
+          return false;
+        }
       }
 
-      // Type filter
+      // Controlla se corrisponde al tipo selezionato
       if (_selectedTypes.isNotEmpty) {
-        if (!_selectedTypes.contains(monster.type)) return false;
+        final monsterType = monster.type;
+        if (!_selectedTypes.contains(monsterType)) {
+          return false;
+        }
       }
 
-      // Species filter
+      // Controlla se corrisponde alla specie selezionata
       if (_selectedSpecies.isNotEmpty) {
-        if (!_selectedSpecies.contains(monster.species)) return false;
+        final monsterSpecies = monster.species;
+        if (!_selectedSpecies.contains(monsterSpecies)) {
+          return false;
+        }
       }
 
       return true;

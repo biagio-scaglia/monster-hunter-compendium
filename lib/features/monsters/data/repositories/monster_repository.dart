@@ -57,14 +57,17 @@ class MonsterRepository {
     }
   }
 
+  // Carica un singolo mostro tramite ID con tutte le informazioni complete
   Future<MonsterModel> getMonsterById(int monsterId) async {
     try {
+      // Richiede tutte le informazioni: ailments, locations, resistances, weaknesses, rewards, assets
       final uri = Uri.parse(
         ApiConstants.baseUrl + ApiConstants.getMonsterById(monsterId),
       );
 
       final response = await client.get(uri);
 
+      // Se la richiesta è andata a buon fine
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
 
@@ -73,9 +76,13 @@ class MonsterRepository {
         }
 
         throw Exception('Invalid response format');
-      } else if (response.statusCode == 404) {
+      } 
+      // Se non trovato, lancia un errore
+      else if (response.statusCode == 404) {
         throw Exception('Monster not found');
-      } else {
+      } 
+      // Altrimenti lancia un errore
+      else {
         throw Exception('Failed to load monster: ${response.statusCode}');
       }
     } catch (e) {

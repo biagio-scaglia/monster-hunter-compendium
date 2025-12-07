@@ -178,8 +178,35 @@ class _CharmDetailPageState extends State<CharmDetailPage> {
                         const SizedBox(height: 8),
                         ...(rank['skills'] as List).map((skill) {
                           final skillData = skill as Map<String, dynamic>;
-                          return Text('• ${skillData['skillName'] ?? 'Skill'}: Level ${skillData['level'] ?? 1}');
+                          final skillName = skillData['skillName']?.toString() ?? 'Skill';
+                          final level = skillData['level']?.toString() ?? '1';
+                          final description = skillData['description']?.toString() ?? '';
+                          return Card(
+                            elevation: 1,
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$skillName (Level $level)',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  if (description.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    Text(description, style: const TextStyle(fontSize: 12)),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          );
                         }),
+                      ],
+                      // Mostra il crafting se disponibile
+                      if (rank['crafting'] != null) ...[
+                        const SizedBox(height: 16),
+                        _buildCraftingInfo(rank['crafting'] as Map<String, dynamic>),
                       ],
                     ],
                   ),
@@ -221,6 +248,55 @@ class _CharmDetailPageState extends State<CharmDetailPage> {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCraftingInfo(Map<String, dynamic> crafting) {
+    final materials = crafting['materials'] as List<dynamic>?;
+    final craftable = crafting['craftable'] == true;
+    
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Crafting',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text('Craftable: ${craftable ? 'Yes' : 'No'}'),
+            if (materials != null && materials.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              const Text(
+                'Materials',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              ...materials.map((material) {
+                final materialData = material as Map<String, dynamic>;
+                final item = materialData['item'] as Map<String, dynamic>?;
+                final quantity = materialData['quantity']?.toString() ?? '0';
+                final itemName = item?['name']?.toString() ?? 'Unknown';
+                return Card(
+                  elevation: 1,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    leading: const Icon(Icons.inventory_2),
+                    title: Text(itemName),
+                    subtitle: Text('Quantity: $quantity'),
+                  ),
+                );
+              }),
+            ],
           ],
         ),
       ),

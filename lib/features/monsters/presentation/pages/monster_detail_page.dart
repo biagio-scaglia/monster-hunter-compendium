@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/responsive_container.dart';
+import '../../../../shared/widgets/optimized_image.dart';
+import '../../../../shared/utils/element_helper.dart';
 import '../../data/repositories/monster_repository.dart';
 import '../../data/models/monster_model.dart';
 
@@ -28,21 +30,26 @@ class _MonsterDetailPageState extends State<MonsterDetailPage> {
   }
 
   Future<void> loadMonster() async {
+    // Inizia il caricamento
     setState(() {
       isLoading = true;
       error = null;
     });
 
     try {
+      // Carica il mostro dal repository
       final loadedMonster = await repository.getMonsterById(widget.monsterId);
 
+      // Salva il mostro caricato
       setState(() {
         monster = loadedMonster;
         isLoading = false;
       });
     } catch (e) {
+      // Se c'è un errore, salvalo e ferma il caricamento
+      final errorMessage = e.toString().replaceAll('Exception: ', '');
       setState(() {
-        error = e.toString().replaceAll('Exception: ', '');
+        error = errorMessage;
         isLoading = false;
       });
     }
@@ -61,13 +68,17 @@ class _MonsterDetailPageState extends State<MonsterDetailPage> {
   }
 
   Widget _buildBody() {
+    // Mostra il caricamento
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
 
+    // Mostra l'errore se c'è
     if (error != null) {
+      final isNotFoundError = error!.contains('404');
+      
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -91,8 +102,8 @@ class _MonsterDetailPageState extends State<MonsterDetailPage> {
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 8),
-            if (error != null && error!.contains('404'))
+            if (isNotFoundError) ...[
+              const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
@@ -101,6 +112,7 @@ class _MonsterDetailPageState extends State<MonsterDetailPage> {
                   textAlign: TextAlign.center,
                 ),
               ),
+            ],
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: loadMonster,
@@ -111,6 +123,7 @@ class _MonsterDetailPageState extends State<MonsterDetailPage> {
       );
     }
 
+    // Se il mostro non esiste, mostra un messaggio
     if (monster == null) {
       return const Center(
         child: Text('Monster not found'),
@@ -122,36 +135,17 @@ class _MonsterDetailPageState extends State<MonsterDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            height: 200,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.pets,
-              size: 100,
-              color: Colors.grey,
-            ),
-          ),
+          // Mostra l'immagine del mostro se disponibile
+          _buildMonsterImage(),
           const SizedBox(height: 24),
-          if (monster!.name.isNotEmpty)
-            Text(
-              monster!.name,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepOrange[700],
-                  ),
-            )
-          else
-            Text(
-              'Unknown Monster',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepOrange[700],
-                  ),
-            ),
+          // Mostra il nome del mostro o "Unknown Monster" se non c'è
+          Text(
+            monster!.name.isNotEmpty ? monster!.name : 'Unknown Monster',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepOrange[700],
+                ),
+          ),
           const SizedBox(height: 24),
           _buildInfoCard(
             'Monster ID',
@@ -185,19 +179,207 @@ class _MonsterDetailPageState extends State<MonsterDetailPage> {
             const SizedBox(height: 16),
             _buildInfoCard(
               'Elements',
-              monster!.elements.join(', '),
+              ElementHelper.getElementsWithEmoji(monster!.elements),
               Icons.whatshot,
             ),
           ],
+          // Mostra le debolezze con dettagli
           if (monster!.weaknesses.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            _buildInfoCard(
+            const SizedBox(height: 24),
+            Text(
               'Weaknesses',
-              monster!.weaknesses.length.toString(),
-              Icons.warning,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
+            const SizedBox(height: 16),
+            ...monster!.weaknesses.map((weakness) {
+              final weaknessData = weakness as Map<String, dynamic>;
+              final element = weaknessData['element']?.toString() ?? 'Unknown';
+              final stars = weaknessData['stars']?.toString() ?? '0';
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: Text(
+                    ElementHelper.getElementEmoji(element),
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                  title: Text(ElementHelper.getElementWithEmoji(element)),
+                  subtitle: Text('${stars} ⭐'),
+                ),
+              );
+            }),
+          ],
+          // Mostra le resistenze
+          if (monster!.resistances.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              'Resistances',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            ...monster!.resistances.map((resistance) {
+              final resistanceData = resistance as Map<String, dynamic>;
+              final element = resistanceData['element']?.toString() ?? 'Unknown';
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: Text(
+                    ElementHelper.getElementEmoji(element),
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                  title: Text(ElementHelper.getElementWithEmoji(element)),
+                  trailing: const Icon(Icons.shield, color: Colors.blue),
+                ),
+              );
+            }),
+          ],
+          // Mostra gli ailments
+          if (monster!.ailments.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              'Ailments',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            ...monster!.ailments.map((ailment) {
+              final ailmentData = ailment as Map<String, dynamic>;
+              final name = ailmentData['name']?.toString() ?? 'Unknown';
+              final description = ailmentData['description']?.toString() ?? '';
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      if (description.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(description),
+                      ],
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+          // Mostra le location
+          if (monster!.locations.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              'Locations',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            ...monster!.locations.map((location) {
+              final locationData = location as Map<String, dynamic>;
+              final name = locationData['name']?.toString() ?? 'Unknown';
+              final zoneCount = locationData['zoneCount']?.toString() ?? '0';
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: const Icon(Icons.map, color: Colors.green),
+                  title: Text(name),
+                  subtitle: Text('$zoneCount zones'),
+                ),
+              );
+            }),
+          ],
+          // Mostra i rewards
+          if (monster!.rewards.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            Text(
+              'Rewards',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            ...monster!.rewards.map((reward) {
+              final rewardData = reward as Map<String, dynamic>;
+              final item = rewardData['item'] as Map<String, dynamic>?;
+              final itemName = item?['name']?.toString() ?? 'Unknown Item';
+              final conditions = rewardData['conditions'] as List<dynamic>?;
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.only(bottom: 12),
+                child: ListTile(
+                  leading: const Icon(Icons.star, color: Colors.amber),
+                  title: Text(itemName),
+                  subtitle: conditions != null && conditions.isNotEmpty
+                      ? Text('${conditions.length} condition(s)')
+                      : null,
+                ),
+              );
+            }),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildMonsterImage() {
+    // Se c'è un'immagine, usala
+    if (monster!.imageUrl != null) {
+      return Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: OptimizedImage(
+            imageUrl: monster!.imageUrl,
+            width: 150,
+            height: 150,
+            fit: BoxFit.contain,
+          ),
+        ),
+      );
+    }
+    
+    // Se c'è solo un'icona, usala
+    if (monster!.iconUrl != null) {
+      return Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: OptimizedImage(
+            imageUrl: monster!.iconUrl,
+            width: 120,
+            height: 120,
+            fit: BoxFit.contain,
+          ),
+        ),
+      );
+    }
+    
+    // Se non c'è nessuna immagine, mostra un'icona di default
+    return Container(
+      width: double.infinity,
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.pets,
+          size: 100,
+          color: Colors.grey,
+        ),
       ),
     );
   }

@@ -52,7 +52,9 @@ class OptimizedImage extends StatelessWidget {
               width: width,
               height: height,
               color: Colors.grey[300],
-              child: const Icon(Icons.broken_image),
+              child: const Center(
+                child: Icon(Icons.broken_image),
+              ),
             );
       },
       cacheWidth: width != null && width!.isFinite ? (width! * 2).toInt() : null,

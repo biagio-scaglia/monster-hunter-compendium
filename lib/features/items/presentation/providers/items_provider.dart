@@ -15,9 +15,17 @@ class ItemsProvider extends ChangeNotifier {
   ItemsProvider({ItemRepository? repository})
       : repository = repository ?? ItemRepository();
 
-  List<ItemModel> get items => _filteredItems.isEmpty && _searchQuery.isEmpty && _selectedRarities.isEmpty
-      ? _items
-      : _filteredItems;
+  // Mostra gli oggetti filtrati se ci sono filtri attivi, altrimenti mostra tutti gli oggetti
+  List<ItemModel> get items {
+    final hasNoFilters = _searchQuery.isEmpty && _selectedRarities.isEmpty;
+    final hasNoFilteredResults = _filteredItems.isEmpty;
+    
+    if (hasNoFilters && hasNoFilteredResults) {
+      return _items;
+    } else {
+      return _filteredItems;
+    }
+  }
   List<ItemModel> get allItems => _items;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -58,16 +66,26 @@ class ItemsProvider extends ChangeNotifier {
 
   void _applyFilters() {
     _filteredItems = _items.where((item) {
-      // Search filter
+      // Controlla se corrisponde alla ricerca
       if (_searchQuery.isNotEmpty) {
-        final matchesSearch = item.name.toLowerCase().contains(_searchQuery) ||
-            item.description.toLowerCase().contains(_searchQuery);
-        if (!matchesSearch) return false;
+        final itemName = item.name.toLowerCase();
+        final itemDescription = item.description.toLowerCase();
+        final searchLower = _searchQuery.toLowerCase();
+        
+        final matchesName = itemName.contains(searchLower);
+        final matchesDescription = itemDescription.contains(searchLower);
+        
+        if (!matchesName && !matchesDescription) {
+          return false;
+        }
       }
 
-      // Rarity filter
+      // Controlla se corrisponde alla rarità selezionata
       if (_selectedRarities.isNotEmpty) {
-        if (!_selectedRarities.contains(item.rarity)) return false;
+        final itemRarity = item.rarity;
+        if (!_selectedRarities.contains(itemRarity)) {
+          return false;
+        }
       }
 
       return true;

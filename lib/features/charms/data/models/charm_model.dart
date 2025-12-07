@@ -16,5 +16,7 @@ class CharmModel {
       ranks: json['ranks'] is List ? json['ranks'] as List<dynamic> : [],
     );
   }
+  
+  // I ranks contengono: level, rarity, skills, crafting
 }
 

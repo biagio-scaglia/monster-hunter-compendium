@@ -111,20 +111,6 @@ class _MonstersPageState extends State<MonstersPage> {
       body: ListenableBuilder(
         listenable: provider,
         builder: (context, _) {
-          if (provider.isLoading && provider.allMonsters.isEmpty) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 16),
-                Text(
-                  'Loading...',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ],
-            );
-          }
-
           if (provider.hasError && provider.allMonsters.isEmpty) {
             return Center(
               child: Padding(

@@ -48,17 +48,24 @@ class _FilterChipBarState extends State<FilterChipBar> {
     }
   }
 
+  // Aggiunge o rimuove un filtro dalla lista
   void _toggleFilter(String value) {
     setState(() {
+      // Se è multi-selezione, aggiunge o rimuove il filtro
       if (widget.multiSelect) {
         if (_selectedFilters.contains(value)) {
           _selectedFilters.remove(value);
         } else {
           _selectedFilters.add(value);
         }
-      } else {
-        _selectedFilters = _selectedFilters.contains(value) ? [] : [value];
+      } 
+      // Se è selezione singola, seleziona solo questo filtro o deseleziona tutto
+      else {
+        final isAlreadySelected = _selectedFilters.contains(value);
+        _selectedFilters = isAlreadySelected ? [] : [value];
       }
+      
+      // Notifica il cambiamento
       widget.onFiltersChanged(_selectedFilters);
     });
   }

@@ -20,9 +20,17 @@ class WeaponsProvider extends ChangeNotifier {
   WeaponsProvider({WeaponRepository? repository})
       : repository = repository ?? WeaponRepository();
 
-  List<WeaponModel> get weapons => _filteredWeapons.isEmpty && _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedRarities.isEmpty
-      ? _weapons
-      : _filteredWeapons;
+  // Mostra le armi filtrate se ci sono filtri attivi, altrimenti mostra tutte le armi
+  List<WeaponModel> get weapons {
+    final hasNoFilters = _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedRarities.isEmpty;
+    final hasNoFilteredResults = _filteredWeapons.isEmpty;
+    
+    if (hasNoFilters && hasNoFilteredResults) {
+      return _weapons;
+    } else {
+      return _filteredWeapons;
+    }
+  }
   List<WeaponModel> get allWeapons => _weapons;
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
@@ -73,7 +81,10 @@ class WeaponsProvider extends ChangeNotifier {
   }
 
   Future<void> loadMoreWeapons() async {
-    if (!_isLoadingMore && _hasMore && _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedRarities.isEmpty) {
+    final canLoadMore = !_isLoadingMore && _hasMore;
+    final hasNoFilters = _searchQuery.isEmpty && _selectedTypes.isEmpty && _selectedRarities.isEmpty;
+    
+    if (canLoadMore && hasNoFilters) {
       await loadWeapons(reset: false);
     }
   }
@@ -99,21 +110,34 @@ class WeaponsProvider extends ChangeNotifier {
 
   void _applyFilters() {
     _filteredWeapons = _weapons.where((weapon) {
-      // Search filter
+      // Controlla se corrisponde alla ricerca
       if (_searchQuery.isNotEmpty) {
-        final matchesSearch = weapon.name.toLowerCase().contains(_searchQuery) ||
-            weapon.type.toLowerCase().contains(_searchQuery);
-        if (!matchesSearch) return false;
+        final weaponName = weapon.name.toLowerCase();
+        final weaponType = weapon.type.toLowerCase();
+        final searchLower = _searchQuery.toLowerCase();
+        
+        final matchesName = weaponName.contains(searchLower);
+        final matchesType = weaponType.contains(searchLower);
+        
+        if (!matchesName && !matchesType) {
+          return false;
+        }
       }
 
-      // Type filter
+      // Controlla se corrisponde al tipo selezionato
       if (_selectedTypes.isNotEmpty) {
-        if (!_selectedTypes.contains(weapon.type)) return false;
+        final weaponType = weapon.type;
+        if (!_selectedTypes.contains(weaponType)) {
+          return false;
+        }
       }
 
-      // Rarity filter
+      // Controlla se corrisponde alla rarità selezionata
       if (_selectedRarities.isNotEmpty) {
-        if (!_selectedRarities.contains(weapon.rarity)) return false;
+        final weaponRarity = weapon.rarity;
+        if (!_selectedRarities.contains(weaponRarity)) {
+          return false;
+        }
       }
 
       return true;

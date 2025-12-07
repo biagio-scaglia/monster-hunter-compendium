@@ -17,18 +17,23 @@ class LocationsProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasError => _error != null;
 
+  // Carica le location dal repository
   Future<void> loadLocations({String? query}) async {
+    // Inizia il caricamento
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
+      // Carica le location
       _locations = await repository.getLocations(query: query);
       _error = null;
     } catch (e) {
+      // Se c'è un errore, salvalo e svuota la lista
       _error = e.toString();
       _locations = [];
     } finally {
+      // Ferma il caricamento
       _isLoading = false;
       notifyListeners();
     }

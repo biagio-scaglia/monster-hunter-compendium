@@ -10,6 +10,8 @@ import '../../../../features/locations/presentation/pages/locations_page.dart';
 import '../../../../features/charms/presentation/pages/charms_page.dart';
 import '../../../../features/decorations/presentation/pages/decorations_page.dart';
 import '../../../../features/events/presentation/pages/events_page.dart';
+import '../../../../features/ailments/presentation/pages/ailments_page.dart';
+import '../../../../features/motion_values/presentation/pages/motion_values_page.dart';
 
 class HubPage extends StatelessWidget {
   const HubPage({super.key});
@@ -159,6 +161,22 @@ class HubPage extends StatelessWidget {
               const SizedBox(height: 16),
               _buildHubCard(
                 context,
+                title: 'Ailments',
+                subtitle: 'Status effects and ailments',
+                icon: Icons.warning,
+                color: Colors.red,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AilmentsPage(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildHubCard(
+                context,
                 title: 'Skills',
                 subtitle: 'All available skills',
                 icon: Icons.stars,
@@ -168,6 +186,22 @@ class HubPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SkillsPage(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildHubCard(
+                context,
+                title: 'Motion Values',
+                subtitle: 'Weapon attack motion values',
+                icon: Icons.speed,
+                color: Colors.indigo,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MotionValuesPage(),
                     ),
                   );
                 },

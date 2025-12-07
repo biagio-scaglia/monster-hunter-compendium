@@ -19,18 +19,26 @@ class _MonsterHunterAppState extends State<MonsterHunterApp> {
     _loadThemePreference();
   }
 
+  // Carica la preferenza del tema salvata
   Future<void> _loadThemePreference() async {
     final prefs = await SharedPreferences.getInstance();
+    final savedDarkMode = prefs.getBool('isDarkMode') ?? false;
+    
     setState(() {
-      _isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      _isDarkMode = savedDarkMode;
     });
   }
 
+  // Cambia tra tema chiaro e scuro
   Future<void> _toggleTheme() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // Cambia il tema
     setState(() {
       _isDarkMode = !_isDarkMode;
     });
+    
+    // Salva la preferenza
     await prefs.setBool('isDarkMode', _isDarkMode);
   }
 

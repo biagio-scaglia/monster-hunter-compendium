@@ -17,18 +17,23 @@ class EventsProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasError => _error != null;
 
+  // Carica gli eventi dal repository
   Future<void> loadEvents({String? query}) async {
+    // Inizia il caricamento
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
+      // Carica gli eventi
       _events = await repository.getEvents(query: query);
       _error = null;
     } catch (e) {
+      // Se c'è un errore, salvalo e svuota la lista
       _error = e.toString();
       _events = [];
     } finally {
+      // Ferma il caricamento
       _isLoading = false;
       notifyListeners();
     }

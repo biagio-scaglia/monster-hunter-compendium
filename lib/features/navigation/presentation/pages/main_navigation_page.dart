@@ -49,8 +49,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     NavigationItem(icon: Icons.shield, label: 'Armor'),
   ];
 
+  // Gestisce il tap su un elemento della navigazione
   void _onItemTapped(int index) {
-    if (index != currentIndex && index >= 0 && index < pages.length) {
+    final isValidIndex = index >= 0 && index < pages.length;
+    final isDifferentPage = index != currentIndex;
+    
+    if (isValidIndex && isDifferentPage) {
       HapticFeedback.selectionClick();
       setState(() {
         currentIndex = index;
@@ -322,6 +326,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         items: navigationItems.map((item) {
           final index = navigationItems.indexOf(item);
           final isSelected = index == currentIndex;
+          
+          // Se l'elemento è selezionato, mostra il gradiente
+          final iconColor = isSelected
+              ? AppTheme.primaryText
+              : Theme.of(context).iconTheme.color;
+          
           return BottomNavigationBarItem(
             icon: Container(
               padding: const EdgeInsets.all(8),
@@ -333,9 +343,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                   : null,
               child: Icon(
                 item.icon,
-                color: isSelected
-                    ? AppTheme.primaryText
-                    : Theme.of(context).iconTheme.color,
+                color: iconColor,
               ),
             ),
             label: item.label,

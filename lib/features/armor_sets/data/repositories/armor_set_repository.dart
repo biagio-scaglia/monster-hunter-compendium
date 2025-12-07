@@ -38,20 +38,31 @@ class ArmorSetRepository {
     }
   }
 
+  // Carica un singolo armor set tramite ID, includendo gli assets dei pezzi
   Future<ArmorSetModel> getArmorSetById(int setId) async {
     try {
+      // Richiede anche gli assets dei pezzi per avere le immagini maschili e femminili
+      final queryParams = <String, String>{
+        'p': '{"id":true,"name":true,"rank":true,"pieces":{"id":true,"name":true,"type":true,"rank":true,"rarity":true,"assets":true},"bonus":true}',
+      };
+      
       final uri = Uri.parse(
         ApiConstants.baseUrl + ApiConstants.getArmorSetById(setId),
-      );
+      ).replace(queryParameters: queryParams);
 
       final response = await client.get(uri);
 
+      // Se la richiesta è andata a buon fine
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         return ArmorSetModel.fromJson(jsonData as Map<String, dynamic>);
-      } else if (response.statusCode == 404) {
+      } 
+      // Se non trovato, lancia un errore
+      else if (response.statusCode == 404) {
         throw Exception('Armor set not found');
-      } else {
+      } 
+      // Altrimenti lancia un errore
+      else {
         throw Exception('Failed to load armor set: ${response.statusCode}');
       }
     } catch (e) {

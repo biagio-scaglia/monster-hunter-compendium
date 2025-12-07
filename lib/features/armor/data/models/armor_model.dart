@@ -8,9 +8,11 @@ class ArmorModel {
   final int rarity;
   final Map<String, dynamic>? defense;
   final Map<String, dynamic>? resistances;
+  final Map<String, dynamic>? attributes;
   final List<dynamic>? slots;
   final List<dynamic>? skills;
   final Map<String, dynamic>? armorSet;
+  final Map<String, dynamic>? crafting;
   final Map<String, dynamic>? assets;
 
   ArmorModel({
@@ -21,9 +23,11 @@ class ArmorModel {
     required this.rarity,
     this.defense,
     this.resistances,
+    this.attributes,
     this.slots,
     this.skills,
     this.armorSet,
+    this.crafting,
     this.assets,
   });
 
@@ -36,9 +40,11 @@ class ArmorModel {
       rarity: json['rarity'] is int ? json['rarity'] as int : (json['rarity'] as num?)?.toInt() ?? 0,
       defense: json['defense'] as Map<String, dynamic>?,
       resistances: json['resistances'] as Map<String, dynamic>?,
+      attributes: json['attributes'] as Map<String, dynamic>?,
       slots: json['slots'] is List ? json['slots'] as List<dynamic> : null,
       skills: json['skills'] is List ? json['skills'] as List<dynamic> : null,
       armorSet: json['armorSet'] as Map<String, dynamic>?,
+      crafting: json['crafting'] as Map<String, dynamic>?,
       assets: json['assets'] as Map<String, dynamic>?,
     );
   }

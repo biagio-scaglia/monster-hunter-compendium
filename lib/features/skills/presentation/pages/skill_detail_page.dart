@@ -155,6 +155,9 @@ class _SkillDetailPageState extends State<SkillDetailPage> {
             const SizedBox(height: 16),
             ...skill!.ranks.asMap().entries.map((entry) {
               final rank = entry.value as Map<String, dynamic>;
+              final level = rank['level']?.toString() ?? (entry.key + 1).toString();
+              final description = rank['description']?.toString() ?? '';
+              final modifiers = rank['modifiers'] as Map<String, dynamic>?;
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
@@ -164,15 +167,33 @@ class _SkillDetailPageState extends State<SkillDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Level ${rank['level'] ?? entry.key + 1}',
+                        'Level $level',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
-                      if (rank['description'] != null) ...[
+                      if (description.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        Text(rank['description'] as String),
+                        Text(description),
+                      ],
+                      // Mostra i modifiers se disponibili
+                      if (modifiers != null && modifiers.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Modifiers',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: modifiers.entries.map((entry) {
+                            return Chip(
+                              label: Text('${entry.key}: ${entry.value}'),
+                            );
+                          }).toList(),
+                        ),
                       ],
                     ],
                   ),

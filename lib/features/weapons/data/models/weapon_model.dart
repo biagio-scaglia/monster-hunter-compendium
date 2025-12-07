@@ -7,8 +7,11 @@ class WeaponModel {
   final int rarity;
   final Map<String, dynamic>? attack;
   final String? damageType;
+  final String? elderseal;
+  final Map<String, dynamic>? attributes;
   final List<dynamic>? slots;
   final List<dynamic>? elements;
+  final List<dynamic>? durability;
   final Map<String, dynamic>? crafting;
   final Map<String, dynamic>? assets;
 
@@ -19,8 +22,11 @@ class WeaponModel {
     required this.rarity,
     this.attack,
     this.damageType,
+    this.elderseal,
+    this.attributes,
     this.slots,
     this.elements,
+    this.durability,
     this.crafting,
     this.assets,
   });
@@ -32,9 +38,12 @@ class WeaponModel {
       type: (json['type'] as String?) ?? '',
       rarity: json['rarity'] is int ? json['rarity'] as int : (json['rarity'] as num?)?.toInt() ?? 0,
       attack: json['attack'] as Map<String, dynamic>?,
-      damageType: json['damageType'] as String?,
+      damageType: json['damageType'] as String? ?? (json['attributes']?['damageType'] as String?),
+      elderseal: json['elderseal'] as String?,
+      attributes: json['attributes'] as Map<String, dynamic>?,
       slots: json['slots'] is List ? json['slots'] as List<dynamic> : null,
       elements: json['elements'] is List ? json['elements'] as List<dynamic> : null,
+      durability: json['durability'] is List ? json['durability'] as List<dynamic> : null,
       crafting: json['crafting'] as Map<String, dynamic>?,
       assets: json['assets'] as Map<String, dynamic>?,
     );

@@ -161,13 +161,36 @@ class _DecorationDetailPageState extends State<DecorationDetailPage> {
             const SizedBox(height: 16),
             ...decoration!.skills.map((skill) {
               final skillData = skill as Map<String, dynamic>;
+              final skillName = skillData['skillName']?.toString() ?? 'Unknown Skill';
+              final level = skillData['level']?.toString() ?? '1';
+              final description = skillData['description']?.toString() ?? '';
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(Icons.stars),
-                  title: Text(skillData['skillName']?.toString() ?? 'Unknown Skill'),
-                  subtitle: Text('Level ${skillData['level'] ?? 1}'),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.stars, color: Colors.amber),
+                          const SizedBox(width: 8),
+                          Text(
+                            '$skillName (Level $level)',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (description.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Text(description),
+                      ],
+                    ],
+                  ),
                 ),
               );
             }),

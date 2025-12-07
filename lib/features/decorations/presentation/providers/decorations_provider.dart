@@ -17,18 +17,23 @@ class DecorationsProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasError => _error != null;
 
+  // Carica le decorazioni dal repository
   Future<void> loadDecorations({String? query}) async {
+    // Inizia il caricamento
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
+      // Carica le decorazioni
       _decorations = await repository.getDecorations(query: query);
       _error = null;
     } catch (e) {
+      // Se c'è un errore, salvalo e svuota la lista
       _error = e.toString();
       _decorations = [];
     } finally {
+      // Ferma il caricamento
       _isLoading = false;
       notifyListeners();
     }

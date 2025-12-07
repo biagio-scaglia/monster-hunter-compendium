@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/responsive_container.dart';
+import '../../../../shared/widgets/optimized_image.dart';
+import '../../../../core/constants/api_constants.dart';
 import '../../data/repositories/armor_set_repository.dart';
 import '../../data/models/armor_set_model.dart';
 
@@ -111,19 +113,8 @@ class _ArmorSetDetailPageState extends State<ArmorSetDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: double.infinity,
-            height: 200,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.checkroom,
-              size: 100,
-              color: Colors.grey,
-            ),
-          ),
+          // Mostra le immagini maschili e femminili se disponibili
+          _buildArmorSetImages(),
           const SizedBox(height: 24),
           Text(
             armorSet!.name,
@@ -202,11 +193,15 @@ class _ArmorSetDetailPageState extends State<ArmorSetDetailPage> {
             const SizedBox(height: 16),
             ...armorSet!.pieces.map((piece) {
               final pieceData = piece as Map<String, dynamic>;
+              final assets = pieceData['assets'] as Map<String, dynamic>?;
+              final imageMale = assets?['imageMale'] as String?;
+              final imageFemale = assets?['imageFemale'] as String?;
+              
               return Card(
                 elevation: 2,
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
-                  leading: const Icon(Icons.shield),
+                  leading: _buildPieceImage(imageMale, imageFemale),
                   title: Text(pieceData['name']?.toString() ?? 'Unknown'),
                   subtitle: Text('Type: ${pieceData['type'] ?? 'Unknown'}'),
                 ),
@@ -251,6 +246,124 @@ class _ArmorSetDetailPageState extends State<ArmorSetDetailPage> {
         ),
       ),
     );
+  }
+
+  // Costruisce le immagini dell'armor set (maschile e femminile)
+  Widget _buildArmorSetImages() {
+    if (armorSet == null || armorSet!.pieces.isEmpty) {
+      return Container(
+        width: double.infinity,
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.checkroom,
+            size: 100,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    // Prendi le immagini dal primo pezzo dell'armor set
+    final firstPiece = armorSet!.pieces.first as Map<String, dynamic>;
+    final assets = firstPiece['assets'] as Map<String, dynamic>?;
+    final imageMale = _getAbsoluteUrl(assets?['imageMale'] as String?);
+    final imageFemale = _getAbsoluteUrl(assets?['imageFemale'] as String?);
+
+    // Se non ci sono immagini, mostra un'icona
+    if (imageMale == null && imageFemale == null) {
+      return Container(
+        width: double.infinity,
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.checkroom,
+            size: 100,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    // Mostra entrambe le immagini se disponibili
+    return Column(
+      children: [
+        if (imageMale != null) ...[
+          Text(
+            'Male',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: OptimizedImage(
+                imageUrl: imageMale,
+                width: 150,
+                height: 150,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (imageFemale != null) ...[
+          Text(
+            'Female',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: OptimizedImage(
+                imageUrl: imageFemale,
+                width: 150,
+                height: 150,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // Costruisce l'immagine per un singolo pezzo (mostra maschile se disponibile, altrimenti femminile)
+  Widget _buildPieceImage(String? imageMale, String? imageFemale) {
+    final imageUrl = _getAbsoluteUrl(imageMale ?? imageFemale);
+    
+    if (imageUrl == null) {
+      return const Icon(Icons.shield, size: 40);
+    }
+    
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: OptimizedImage(
+        imageUrl: imageUrl,
+        width: 50,
+        height: 50,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  // Converte un URL relativo in assoluto
+  String? _getAbsoluteUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    return ApiConstants.getAbsoluteImageUrl(url);
   }
 }
 

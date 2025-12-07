@@ -212,12 +212,63 @@ class _EventDetailPageState extends State<EventDetailPage> {
               Icons.event_busy,
             ),
           ],
+          // Mostra la location completa se disponibile
           if (event!.location != null) ...[
-            const SizedBox(height: 16),
-            _buildInfoCard(
+            const SizedBox(height: 24),
+            Text(
               'Location',
-              event!.location!['name']?.toString() ?? 'Unknown',
-              Icons.map,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.map, color: Colors.green),
+                        const SizedBox(width: 8),
+                        Text(
+                          event!.location!['name']?.toString() ?? 'Unknown',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (event!.location!['zoneCount'] != null) ...[
+                      const SizedBox(height: 8),
+                      Text('Zones: ${event!.location!['zoneCount']}'),
+                    ],
+                    if (event!.location!['camps'] != null && (event!.location!['camps'] as List).isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Camps',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      const SizedBox(height: 8),
+                      ...(event!.location!['camps'] as List).map((camp) {
+                        final campData = camp as Map<String, dynamic>;
+                        return Card(
+                          elevation: 1,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: const Icon(Icons.place),
+                            title: Text(campData['name']?.toString() ?? 'Unknown Camp'),
+                            subtitle: Text('Zone: ${campData['zone'] ?? 'Unknown'}'),
+                          ),
+                        );
+                      }),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ],
         ],

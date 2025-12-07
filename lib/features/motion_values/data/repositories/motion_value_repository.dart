@@ -1,25 +1,24 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../core/constants/api_constants.dart';
-import '../models/item_model.dart';
+import '../models/motion_value_model.dart';
 
-class ItemRepository {
+class MotionValueRepository {
   final http.Client client;
 
-  ItemRepository({http.Client? client}) 
+  MotionValueRepository({http.Client? client}) 
       : client = client ?? http.Client();
 
-  // Carica tutti gli oggetti, opzionalmente filtrati per query
-  Future<List<ItemModel>> getItems({String? query}) async {
+  // Carica tutti i motion values
+  Future<List<MotionValueModel>> getMotionValues({String? weaponType}) async {
     try {
-      // Costruisce l'URL con i parametri di query
-      final queryParams = <String, String>{};
-      if (query != null) {
-        queryParams['q'] = query;
+      // Costruisce l'URL
+      String endpoint = ApiConstants.motionValuesEndpoint;
+      if (weaponType != null) {
+        endpoint = ApiConstants.getMotionValuesByWeaponType(weaponType);
       }
       
-      final uri = Uri.parse(ApiConstants.baseUrl + ApiConstants.itemsEndpoint)
-          .replace(queryParameters: queryParams);
+      final uri = Uri.parse(ApiConstants.baseUrl + endpoint);
 
       // Fa la richiesta HTTP
       final response = await client.get(uri);
@@ -31,7 +30,7 @@ class ItemRepository {
         // Se i dati sono una lista, li converte in modelli
         if (jsonData is List) {
           return jsonData
-              .map((item) => ItemModel.fromJson(item as Map<String, dynamic>))
+              .map((item) => MotionValueModel.fromJson(item as Map<String, dynamic>))
               .toList();
         }
 
@@ -43,19 +42,19 @@ class ItemRepository {
       } 
       // Altrimenti lancia un errore
       else {
-        throw Exception('Failed to load items: ${response.statusCode}');
+        throw Exception('Failed to load motion values: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error fetching items: $e');
+      throw Exception('Error fetching motion values: $e');
     }
   }
 
-  // Carica un singolo oggetto tramite ID
-  Future<ItemModel> getItemById(int itemId) async {
+  // Carica un singolo motion value tramite ID
+  Future<MotionValueModel> getMotionValueById(int motionValueId) async {
     try {
-      // Costruisce l'URL per l'oggetto specifico
+      // Costruisce l'URL per il motion value specifico
       final uri = Uri.parse(
-        ApiConstants.baseUrl + ApiConstants.getItemById(itemId),
+        ApiConstants.baseUrl + ApiConstants.getMotionValueById(motionValueId),
       );
 
       // Fa la richiesta HTTP
@@ -64,18 +63,18 @@ class ItemRepository {
       // Se la richiesta è andata a buon fine
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        return ItemModel.fromJson(jsonData as Map<String, dynamic>);
+        return MotionValueModel.fromJson(jsonData as Map<String, dynamic>);
       } 
       // Se non trovato, lancia un errore
       else if (response.statusCode == 404) {
-        throw Exception('Item not found');
+        throw Exception('Motion value not found');
       } 
       // Altrimenti lancia un errore
       else {
-        throw Exception('Failed to load item: ${response.statusCode}');
+        throw Exception('Failed to load motion value: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error fetching item: $e');
+      throw Exception('Error fetching motion value: $e');
     }
   }
 }
