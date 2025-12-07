@@ -19,6 +19,7 @@ class WeaponsPage extends StatefulWidget {
 
 class _WeaponsPageState extends State<WeaponsPage> {
   late WeaponsProvider provider;
+  late ScrollController _scrollController;
   List<FilterChipData> _typeFilters = [];
   List<FilterChipData> _rarityFilters = [];
 
@@ -26,9 +27,25 @@ class _WeaponsPageState extends State<WeaponsPage> {
   void initState() {
     super.initState();
     provider = WeaponsProvider();
-    provider.loadWeapons().then((_) {
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    provider.loadWeapons(limit: 50).then((_) {
       _initializeFilters();
     });
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
+      provider.loadMoreWeapons();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    provider.dispose();
+    super.dispose();
   }
 
   String _getWeaponTypeEmoji(String type) {
@@ -67,11 +84,6 @@ class _WeaponsPageState extends State<WeaponsPage> {
     });
   }
 
-  @override
-  void dispose() {
-    provider.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -175,9 +187,19 @@ class _WeaponsPageState extends State<WeaponsPage> {
                     ? RefreshIndicator(
                         onRefresh: () => provider.refreshWeapons(),
                         child: ListView.builder(
+                          controller: _scrollController,
                           padding: const EdgeInsets.all(16),
-                          itemCount: weapons.length,
+                          cacheExtent: 500,
+                          itemCount: weapons.length + (provider.isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
+                            if (index == weapons.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
                             final weapon = weapons[index];
                             return GradientCard(
                               margin: const EdgeInsets.only(bottom: 12),
@@ -194,10 +216,6 @@ class _WeaponsPageState extends State<WeaponsPage> {
                               child: Builder(
                                 builder: (context) {
                                   if (weapon.iconUrl != null) {
-                                    if (kDebugMode) {
-                                      print('🎨 [WeaponsPage] Rendering immagine per: ${weapon.name}');
-                                      print('🎨 [WeaponsPage] URL: ${weapon.iconUrl}');
-                                    }
                                     return Row(
                                       children: [
                                         ClipRRect(
@@ -253,9 +271,6 @@ class _WeaponsPageState extends State<WeaponsPage> {
                                       ],
                                     );
                                   } else {
-                                    if (kDebugMode) {
-                                      print('⚠️ [WeaponsPage] Nessun iconUrl per: ${weapon.name}');
-                                    }
                                     return Row(
                                       children: [
                                         Container(

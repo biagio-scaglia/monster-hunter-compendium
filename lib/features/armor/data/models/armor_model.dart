@@ -54,33 +54,18 @@ class ArmorModel {
 
   String? get imageMaleUrl {
     if (assets == null) {
-      if (kDebugMode) {
-        print('⚠️ [ArmorModel] Assets null per armor: $name');
-      }
       return null;
     }
-    final url = _getAbsoluteUrl(assets!['imageMale'] as String?);
-    if (url != null && kDebugMode) {
-      print('✅ [ArmorModel] ImageMale URL per "$name": $url');
-    }
-    return url;
+    return _getAbsoluteUrl(assets!['imageMale'] as String?);
   }
   
   String? get imageFemaleUrl {
     if (assets == null) return null;
-    final url = _getAbsoluteUrl(assets!['imageFemale'] as String?);
-    if (url != null && kDebugMode) {
-      print('✅ [ArmorModel] ImageFemale URL per "$name": $url');
-    }
-    return url;
+    return _getAbsoluteUrl(assets!['imageFemale'] as String?);
   }
   
   String? get imageUrl {
-    final url = imageMaleUrl ?? imageFemaleUrl;
-    if (url == null && kDebugMode) {
-      print('⚠️ [ArmorModel] Nessun image URL disponibile per armor: $name');
-    }
-    return url;
+    return imageMaleUrl ?? imageFemaleUrl;
   }
 }
 

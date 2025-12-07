@@ -33,37 +33,16 @@ class WeaponRepository {
               .map((item) => WeaponModel.fromJson(item as Map<String, dynamic>))
               .toList();
           
-          if (kDebugMode) {
-            print('🔫 [WeaponRepository] Caricate ${weapons.length} armi');
-            if (weapons.isNotEmpty) {
-              final firstWeapon = weapons.first;
-              print('🔫 [WeaponRepository] Prima arma: ${firstWeapon.name}');
-              print('🔫 [WeaponRepository] Assets: ${firstWeapon.assets}');
-              print('🔫 [WeaponRepository] Icon URL: ${firstWeapon.iconUrl}');
-              print('🔫 [WeaponRepository] Image URL: ${firstWeapon.imageUrl}');
-            }
-          }
-          
           return weapons;
         }
 
         return [];
       } else if (response.statusCode == 404) {
-        if (kDebugMode) {
-          print('❌ [WeaponRepository] 404 - Nessuna arma trovata');
-        }
         return [];
       } else {
-        if (kDebugMode) {
-          print('❌ [WeaponRepository] Errore ${response.statusCode}: ${response.body}');
-        }
         throw Exception('Failed to load weapons: ${response.statusCode}');
       }
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('❌ [WeaponRepository] Errore durante il fetch: $e');
-        print('❌ [WeaponRepository] Stack trace: $stackTrace');
-      }
       throw Exception('Error fetching weapons: $e');
     }
   }

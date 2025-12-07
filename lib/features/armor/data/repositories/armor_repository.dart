@@ -33,36 +33,16 @@ class ArmorRepository {
               .map((item) => ArmorModel.fromJson(item as Map<String, dynamic>))
               .toList();
           
-          if (kDebugMode) {
-            print('🛡️ [ArmorRepository] Caricati ${armor.length} armors');
-            if (armor.isNotEmpty) {
-              final firstArmor = armor.first;
-              print('🛡️ [ArmorRepository] Primo armor: ${firstArmor.name}');
-              print('🛡️ [ArmorRepository] Assets: ${firstArmor.assets}');
-              print('🛡️ [ArmorRepository] Image URL: ${firstArmor.imageUrl}');
-            }
-          }
-          
           return armor;
         }
 
         return [];
       } else if (response.statusCode == 404) {
-        if (kDebugMode) {
-          print('❌ [ArmorRepository] 404 - Nessun armor trovato');
-        }
         return [];
       } else {
-        if (kDebugMode) {
-          print('❌ [ArmorRepository] Errore ${response.statusCode}: ${response.body}');
-        }
         throw Exception('Failed to load armor: ${response.statusCode}');
       }
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('❌ [ArmorRepository] Errore durante il fetch: $e');
-        print('❌ [ArmorRepository] Stack trace: $stackTrace');
-      }
       throw Exception('Error fetching armor: $e');
     }
   }

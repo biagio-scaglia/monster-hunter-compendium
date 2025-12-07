@@ -84,16 +84,8 @@ class _FadeInImageWidgetState extends State<FadeInImageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      print('🖼️ [FadeInImageWidget] Tentativo di caricare immagine: ${widget.imageUrl}');
-      print('🖼️ [FadeInImageWidget] Dimensioni: ${widget.width ?? "auto"} x ${widget.height ?? "auto"}');
-    }
-    
     // Verifica che l'URL sia valido
     if (widget.imageUrl.isEmpty) {
-      if (kDebugMode) {
-        print('❌ [FadeInImageWidget] URL vuoto!');
-      }
       return widget.errorWidget ??
           const Icon(
             Icons.error_outline,
@@ -136,9 +128,6 @@ class _FadeInImageWidgetState extends State<FadeInImageWidget> {
         isAntiAlias: true,
         loadingBuilder: (context, child, loadingProgress) {
           if (loadingProgress == null) {
-            if (kDebugMode && _isLoading) {
-              print('✅ [FadeInImageWidget] Immagine caricata con successo: ${widget.imageUrl}');
-            }
             if (mounted && _isLoading) {
               // Posticipa setState dopo il frame corrente per evitare errori durante il build
               SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -150,10 +139,6 @@ class _FadeInImageWidgetState extends State<FadeInImageWidget> {
               });
             }
             return child;
-          }
-          if (kDebugMode && _isLoading) {
-            print('⏳ [FadeInImageWidget] Caricamento in corso: ${widget.imageUrl}');
-            print('⏳ [FadeInImageWidget] Progresso: ${loadingProgress.cumulativeBytesLoaded}/${loadingProgress.expectedTotalBytes ?? "unknown"}');
           }
           return widget.placeholder ??
               Container(
@@ -170,11 +155,6 @@ class _FadeInImageWidgetState extends State<FadeInImageWidget> {
               );
         },
         errorBuilder: (context, error, stackTrace) {
-          if (kDebugMode) {
-            print('❌ [FadeInImageWidget] Errore nel caricamento di: ${widget.imageUrl}');
-            print('❌ [FadeInImageWidget] Tipo errore: ${error.runtimeType}');
-            print('❌ [FadeInImageWidget] Errore: $error');
-          }
           if (mounted && (!_hasError || _isLoading)) {
             // Posticipa setState dopo il frame corrente per evitare errori durante il build
             SchedulerBinding.instance.addPostFrameCallback((_) {

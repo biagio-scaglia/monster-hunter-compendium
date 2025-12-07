@@ -19,6 +19,7 @@ class ArmorPage extends StatefulWidget {
 
 class _ArmorPageState extends State<ArmorPage> {
   late ArmorProvider provider;
+  late ScrollController _scrollController;
   List<FilterChipData> _typeFilters = [];
   List<FilterChipData> _rankFilters = [];
   List<FilterChipData> _rarityFilters = [];
@@ -27,9 +28,25 @@ class _ArmorPageState extends State<ArmorPage> {
   void initState() {
     super.initState();
     provider = ArmorProvider();
-    provider.loadArmor().then((_) {
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    provider.loadArmor(limit: 50).then((_) {
       _initializeFilters();
     });
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
+      provider.loadMoreArmor();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    provider.dispose();
+    super.dispose();
   }
 
   String _getArmorTypeEmoji(String type) {
@@ -73,11 +90,6 @@ class _ArmorPageState extends State<ArmorPage> {
     });
   }
 
-  @override
-  void dispose() {
-    provider.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +112,17 @@ class _ArmorPageState extends State<ArmorPage> {
         listenable: provider,
         builder: (context, _) {
           if (provider.isLoading && provider.allArmor.isEmpty) {
-            return const ShimmerList(itemCount: 8);
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(
+                  'Loading...',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            );
           }
 
           if (provider.hasError && provider.allArmor.isEmpty) {
@@ -190,9 +212,19 @@ class _ArmorPageState extends State<ArmorPage> {
                     ? RefreshIndicator(
                         onRefresh: () => provider.refreshArmor(),
                         child: ListView.builder(
+                          controller: _scrollController,
                           padding: const EdgeInsets.all(16),
-                          itemCount: armor.length,
+                          cacheExtent: 500,
+                          itemCount: armor.length + (provider.isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
+                            if (index == armor.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
                             final armorItem = armor[index];
                             return GradientCard(
                               margin: const EdgeInsets.only(bottom: 12),
@@ -209,10 +241,6 @@ class _ArmorPageState extends State<ArmorPage> {
                               child: Builder(
                                 builder: (context) {
                                   if (armorItem.imageUrl != null) {
-                                    if (kDebugMode) {
-                                      print('🛡️ [ArmorPage] Rendering immagine per: ${armorItem.name}');
-                                      print('🛡️ [ArmorPage] URL: ${armorItem.imageUrl}');
-                                    }
                                     return Row(
                                       children: [
                                         ClipRRect(
@@ -272,9 +300,6 @@ class _ArmorPageState extends State<ArmorPage> {
                                       ],
                                     );
                                   } else {
-                                    if (kDebugMode) {
-                                      print('⚠️ [ArmorPage] Nessun imageUrl per: ${armorItem.name}');
-                                    }
                                     return Row(
                                       children: [
                                         Container(

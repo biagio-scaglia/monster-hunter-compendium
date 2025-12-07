@@ -37,46 +37,22 @@ class MonsterRepository {
                 try {
                   return MonsterModel.fromJson(item as Map<String, dynamic>);
                 } catch (e) {
-                  if (kDebugMode) {
-                    print('❌ [MonsterRepository] Error parsing monster: $e');
-                  }
                   return null;
                 }
               })
               .whereType<MonsterModel>()
               .toList();
 
-          if (kDebugMode) {
-            print('🐉 [MonsterRepository] Caricati ${monsters.length} mostri');
-            if (monsters.isNotEmpty) {
-              final firstMonster = monsters.first;
-              print('🐉 [MonsterRepository] Primo mostro: ${firstMonster.name}');
-              print('🐉 [MonsterRepository] Assets: ${firstMonster.assets}');
-              print('🐉 [MonsterRepository] Icon URL: ${firstMonster.iconUrl}');
-              print('🐉 [MonsterRepository] Image URL: ${firstMonster.imageUrl}');
-            }
-          }
-
           return monsters;
         }
 
         return [];
       } else if (response.statusCode == 404) {
-        if (kDebugMode) {
-          print('❌ [MonsterRepository] 404 - Nessun mostro trovato');
-        }
         return [];
       } else {
-        if (kDebugMode) {
-          print('❌ [MonsterRepository] Errore ${response.statusCode}: ${response.body}');
-        }
         throw Exception('Failed to load monsters: ${response.statusCode}');
       }
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('❌ [MonsterRepository] Errore durante il fetch: $e');
-        print('❌ [MonsterRepository] Stack trace: $stackTrace');
-      }
       throw Exception('Error fetching monsters: $e');
     }
   }

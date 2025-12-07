@@ -20,6 +20,7 @@ class MonstersPage extends StatefulWidget {
 
 class _MonstersPageState extends State<MonstersPage> {
   late MonstersProvider provider;
+  late ScrollController _scrollController;
   List<FilterChipData> _typeFilters = [];
   List<FilterChipData> _speciesFilters = [];
 
@@ -27,9 +28,25 @@ class _MonstersPageState extends State<MonstersPage> {
   void initState() {
     super.initState();
     provider = MonstersProvider();
-    provider.loadMonsters().then((_) {
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    provider.loadMonsters(limit: 50).then((_) {
       _initializeFilters();
     });
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
+      provider.loadMoreMonsters();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    provider.dispose();
+    super.dispose();
   }
 
   String _getTypeEmoji(String type) {
@@ -73,11 +90,6 @@ class _MonstersPageState extends State<MonstersPage> {
     });
   }
 
-  @override
-  void dispose() {
-    provider.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +112,17 @@ class _MonstersPageState extends State<MonstersPage> {
         listenable: provider,
         builder: (context, _) {
           if (provider.isLoading && provider.allMonsters.isEmpty) {
-            return const ShimmerList(itemCount: 8);
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(
+                  'Loading...',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            );
           }
 
           if (provider.hasError && provider.allMonsters.isEmpty) {
@@ -181,15 +203,22 @@ class _MonstersPageState extends State<MonstersPage> {
                     ? RefreshIndicator(
                         onRefresh: () => provider.refreshMonsters(),
                         child: GridView.builder(
+                          controller: _scrollController,
                           padding: const EdgeInsets.all(16),
+                          cacheExtent: 500,
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
                             childAspectRatio: 0.75,
                           ),
-                          itemCount: monsters.length,
+                          itemCount: monsters.length + (provider.isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
+                            if (index == monsters.length) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
                             final monster = monsters[index];
                             final isRare = monster.type.toLowerCase().contains('elder') ||
                                 monster.type.toLowerCase().contains('rare');
@@ -222,10 +251,6 @@ class _MonstersPageState extends State<MonstersPage> {
                                       child: Builder(
                                         builder: (context) {
                                           if (monster.iconUrl != null) {
-                                            if (kDebugMode) {
-                                              print('🐉 [MonstersPage] Rendering immagine per: ${monster.name}');
-                                              print('🐉 [MonstersPage] URL: ${monster.iconUrl}');
-                                            }
                                             return ClipRRect(
                                               borderRadius: BorderRadius.circular(8),
                                               child: FadeInImageWidget(
@@ -250,9 +275,6 @@ class _MonstersPageState extends State<MonstersPage> {
                                               ),
                                             );
                                           } else {
-                                            if (kDebugMode) {
-                                              print('⚠️ [MonstersPage] Nessun iconUrl per: ${monster.name}');
-                                            }
                                             return Center(
                                               child: Icon(
                                                 Icons.pets,

@@ -50,50 +50,30 @@ class MonsterModel {
 
   String? get imageUrl {
     if (assets == null) {
-      if (kDebugMode) {
-        print('⚠️ [MonsterModel] Assets null per mostro: $name');
-      }
       return null;
     }
     final url = assets!['image'] as String?;
     if (url == null || url.isEmpty) {
-      if (kDebugMode) {
-        print('⚠️ [MonsterModel] Image URL null o vuoto per mostro: $name');
-      }
       return null;
     }
     final finalUrl = url.startsWith('http://') || url.startsWith('https://')
         ? url
         : 'https://mhw-db.com' + (url.startsWith('/') ? url : '/$url');
-    
-    if (kDebugMode) {
-      print('✅ [MonsterModel] Image URL per "$name": $finalUrl');
-    }
     
     return finalUrl;
   }
 
   String? get iconUrl {
     if (assets == null) {
-      if (kDebugMode) {
-        print('⚠️ [MonsterModel] Assets null per mostro: $name');
-      }
       return null;
     }
     final url = assets!['icon'] as String?;
     if (url == null || url.isEmpty) {
-      if (kDebugMode) {
-        print('⚠️ [MonsterModel] Icon URL null o vuoto per mostro: $name');
-      }
       return null;
     }
     final finalUrl = url.startsWith('http://') || url.startsWith('https://')
         ? url
         : 'https://mhw-db.com' + (url.startsWith('/') ? url : '/$url');
-    
-    if (kDebugMode) {
-      print('✅ [MonsterModel] Icon URL per "$name": $finalUrl');
-    }
     
     return finalUrl;
   }
