@@ -112,19 +112,28 @@ class _WeaponsPageState extends State<WeaponsPage> {
           if (provider.hasError && provider.allWeapons.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(32.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: AppTheme.errorColor,
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppTheme.errorColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: AppTheme.errorColor,
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     Text(
                       'Error loading weapons',
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -186,9 +195,13 @@ class _WeaponsPageState extends State<WeaponsPage> {
                 child: hasResults
                     ? RefreshIndicator(
                         onRefresh: () => provider.refreshWeapons(),
+                        color: AppTheme.primaryColor,
                         child: ListView.builder(
                           controller: _scrollController,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 16,
+                          ),
                           cacheExtent: 500,
                           itemCount: weapons.length + (provider.isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
@@ -202,7 +215,7 @@ class _WeaponsPageState extends State<WeaponsPage> {
                             }
                             final weapon = weapons[index];
                             return GradientCard(
-                              margin: const EdgeInsets.only(bottom: 12),
+                              margin: const EdgeInsets.only(bottom: 10),
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -219,25 +232,37 @@ class _WeaponsPageState extends State<WeaponsPage> {
                                     return Row(
                                       children: [
                                         ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: FadeInImageWidget(
-                                            imageUrl: weapon.iconUrl!,
-                                            width: 60,
-                                            height: 60,
-                                            fit: BoxFit.cover,
-                                            placeholder: Container(
-                                              width: 60,
-                                              height: 60,
-                                              color: Colors.grey[300],
-                                              child: const Center(
-                                                child: CircularProgressIndicator(strokeWidth: 2),
-                                              ),
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).brightness == Brightness.dark
+                                                  ? Colors.grey.shade800
+                                                  : Colors.grey.shade200,
+                                              borderRadius: BorderRadius.circular(12),
                                             ),
-                                            errorWidget: Container(
-                                              width: 60,
-                                              height: 60,
-                                              color: Colors.grey[300],
-                                              child: const Icon(Icons.error_outline, color: Colors.red, size: 30),
+                                            child: FadeInImageWidget(
+                                              imageUrl: weapon.iconUrl!,
+                                              width: 64,
+                                              height: 64,
+                                              fit: BoxFit.cover,
+                                              placeholder: Container(
+                                                width: 64,
+                                                height: 64,
+                                                color: Theme.of(context).brightness == Brightness.dark
+                                                    ? Colors.grey.shade800
+                                                    : Colors.grey.shade200,
+                                                child: const Center(
+                                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                                ),
+                                              ),
+                                              errorWidget: Container(
+                                                width: 64,
+                                                height: 64,
+                                                color: Theme.of(context).brightness == Brightness.dark
+                                                    ? Colors.grey.shade800
+                                                    : Colors.grey.shade200,
+                                                child: const Icon(Icons.error_outline, color: Colors.red, size: 30),
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -274,41 +299,73 @@ class _WeaponsPageState extends State<WeaponsPage> {
                                     return Row(
                                       children: [
                                         Container(
-                                          width: 60,
-                                          height: 60,
+                                          width: 64,
+                                          height: 64,
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(8),
-                                            color: Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(12),
+                                            color: Theme.of(context).brightness == Brightness.dark
+                                                ? Colors.grey.shade800
+                                                : Colors.grey.shade200,
                                           ),
-                                          child: const Icon(Icons.sports_martial_arts, size: 40),
+                                          child: Icon(
+                                            Icons.sports_martial_arts,
+                                            size: 36,
+                                            color: Theme.of(context).brightness == Brightness.dark
+                                                ? Colors.grey.shade500
+                                                : Colors.grey.shade600,
+                                          ),
                                         ),
                                         const SizedBox(width: 16),
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               Text(
                                                 weapon.name,
-                                                style: AppTheme.cardTitleStyle,
+                                                style: AppTheme.cardTitleStyle.copyWith(
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               ),
-                                              const SizedBox(height: 4),
+                                              const SizedBox(height: 6),
                                               Text(
                                                 'Type: ${weapon.type}',
-                                                style: AppTheme.cardBodyStyle,
+                                                style: AppTheme.cardBodyStyle.copyWith(
+                                                  color: Theme.of(context).brightness == Brightness.dark
+                                                      ? Colors.grey.shade400
+                                                      : Colors.grey.shade700,
+                                                ),
                                               ),
+                                              const SizedBox(height: 2),
                                               Text(
                                                 'Rarity: ${weapon.rarity}',
-                                                style: AppTheme.cardBodyStyle,
+                                                style: AppTheme.cardBodyStyle.copyWith(
+                                                  color: Theme.of(context).brightness == Brightness.dark
+                                                      ? Colors.grey.shade400
+                                                      : Colors.grey.shade700,
+                                                ),
                                               ),
-                                              if (weapon.attack != null && weapon.attack!['display'] != null)
+                                              if (weapon.attack != null && weapon.attack!['display'] != null) ...[
+                                                const SizedBox(height: 2),
                                                 Text(
                                                   'Attack: ${weapon.attack!['display']}',
-                                                  style: AppTheme.cardBodyStyle,
+                                                  style: AppTheme.cardBodyStyle.copyWith(
+                                                    color: Theme.of(context).brightness == Brightness.dark
+                                                        ? Colors.grey.shade400
+                                                        : Colors.grey.shade700,
+                                                  ),
                                                 ),
+                                              ],
                                             ],
                                           ),
                                         ),
-                                        const Icon(Icons.arrow_forward_ios),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 16,
+                                          color: Theme.of(context).brightness == Brightness.dark
+                                              ? Colors.grey.shade500
+                                              : Colors.grey.shade600,
+                                        ),
                                       ],
                                     );
                                   }
@@ -318,34 +375,45 @@ class _WeaponsPageState extends State<WeaponsPage> {
                           },
                         ),
                       )
-                    : Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              hasFilters ? Icons.filter_alt_off : Icons.sports_martial_arts,
-                              size: 64,
-                              color: Theme.of(context).iconTheme.color,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              hasFilters
-                                  ? 'No weapons match your filters'
-                                  : 'No weapons found',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            if (hasFilters) ...[
-                              const SizedBox(height: 8),
-                              TextButton(
-                                onPressed: () {
-                                  provider.setSearchQuery('');
-                                  provider.setSelectedTypes([]);
-                                  provider.setSelectedRarities([]);
-                                },
-                                child: const Text('Clear filters'),
+                                    : Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                hasFilters ? Icons.filter_alt_off : Icons.sports_martial_arts,
+                                size: 80,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade600
+                                    : Colors.grey.shade400,
                               ),
+                              const SizedBox(height: 20),
+                              Text(
+                                hasFilters
+                                    ? 'No weapons match your filters'
+                                    : 'No weapons found',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              if (hasFilters) ...[
+                                const SizedBox(height: 16),
+                                GradientButton(
+                                  text: 'Clear filters',
+                                  icon: Icons.clear_all,
+                                  onPressed: () {
+                                    provider.setSearchQuery('');
+                                    provider.setSelectedTypes([]);
+                                    provider.setSelectedRarities([]);
+                                  },
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
               ),

@@ -58,39 +58,78 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
+            color: isDark 
+                ? Colors.black.withOpacity(0.4)
+                : Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            spreadRadius: 0,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: isDark 
+                ? Colors.black.withOpacity(0.2)
+                : Colors.black.withOpacity(0.04),
+            blurRadius: 4,
+            spreadRadius: 0,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: TextField(
         controller: _controller,
+        style: AppTheme.bodyStyle.copyWith(
+          color: isDark ? AppTheme.primaryText : AppTheme.secondaryColor,
+        ),
         decoration: InputDecoration(
           hintText: widget.hintText,
-          prefixIcon: const Icon(Icons.search),
+          hintStyle: AppTheme.cardBodyStyle.copyWith(
+            color: isDark ? Colors.grey.shade500 : Colors.grey.shade600,
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+            size: 22,
+          ),
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: Icon(
+                    Icons.clear,
+                    color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                    size: 20,
+                  ),
                   onPressed: _clearSearch,
+                  splashRadius: 20,
                 )
               : null,
           filled: true,
-          fillColor: isDark ? const Color(0xFF424242) : Colors.white,
+          fillColor: isDark ? AppTheme.surfaceDark : Colors.white,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+              width: 1.5,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(
+              color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+              width: 1.5,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(
+              color: AppTheme.primaryColor,
+              width: 2.5,
+            ),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
       ),
     );

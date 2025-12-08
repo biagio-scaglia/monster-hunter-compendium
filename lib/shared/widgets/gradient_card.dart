@@ -66,30 +66,33 @@ class _GradientCardState extends State<GradientCard>
     final gradient = widget.customGradient ??
         (isDark ? AppTheme.darkCardGradient : AppTheme.cardGradient);
 
-    // Crea la card con gradiente e ombra
+    // Crea la card con gradiente e ombra migliorata
+    final shadows = widget.isRare 
+        ? AppTheme.rareCardShadow 
+        : (isDark ? AppTheme.cardShadowDark : AppTheme.cardShadow);
+    
     Widget card = Container(
-      margin: widget.margin ?? const EdgeInsets.all(8),
+      margin: widget.margin ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         gradient: gradient,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: widget.isRare
-                ? AppTheme.accentColor.withOpacity(0.3)
-                : Colors.black.withOpacity(0.1),
-            blurRadius: widget.isRare ? 12 : 8,
-            spreadRadius: widget.isRare ? 2 : 0,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: widget.isRare 
+              ? AppTheme.accentColor.withOpacity(0.3)
+              : (isDark ? Colors.grey.shade800.withOpacity(0.5) : Colors.grey.shade200.withOpacity(0.5)),
+          width: widget.isRare ? 1.5 : 1,
+        ),
+        boxShadow: shadows,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          splashColor: AppTheme.primaryColor.withOpacity(0.1),
+          highlightColor: AppTheme.primaryColor.withOpacity(0.05),
           child: Padding(
-            padding: widget.padding ?? const EdgeInsets.all(16),
+            padding: widget.padding ?? const EdgeInsets.all(18),
             child: widget.child,
           ),
         ),

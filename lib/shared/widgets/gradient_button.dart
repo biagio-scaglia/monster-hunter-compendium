@@ -22,15 +22,13 @@ class GradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget button = Container(
       decoration: BoxDecoration(
-        gradient: AppTheme.primaryButtonGradient,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        gradient: onPressed != null 
+            ? AppTheme.primaryButtonGradient 
+            : LinearGradient(
+                colors: [Colors.grey.shade400, Colors.grey.shade600],
+              ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: onPressed != null ? AppTheme.buttonShadow : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -41,23 +39,27 @@ class GradientButton extends StatelessWidget {
                   onPressed!();
                 }
               : null,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(14),
+          splashColor: AppTheme.primaryText.withOpacity(0.2),
+          highlightColor: AppTheme.primaryText.withOpacity(0.1),
           child: Container(
             padding: padding ?? const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 12,
+              horizontal: 28,
+              vertical: 16,
             ),
             child: Row(
               mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (icon != null) ...[
-                  Icon(icon, color: AppTheme.primaryText, size: 20),
-                  const SizedBox(width: 8),
+                  Icon(icon, color: AppTheme.primaryText, size: 22),
+                  const SizedBox(width: 10),
                 ],
                 Text(
                   text,
-                  style: AppTheme.buttonStyle,
+                  style: AppTheme.buttonStyle.copyWith(
+                    fontSize: 16,
+                  ),
                 ),
               ],
             ),

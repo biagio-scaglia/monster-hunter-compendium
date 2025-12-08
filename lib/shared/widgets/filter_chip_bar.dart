@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 
 class FilterChipData {
@@ -109,19 +110,31 @@ class _FilterChipBarState extends State<FilterChipBar> {
                         maxLines: 1,
                         style: const TextStyle(fontSize: 12),
                       ),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
+                visualDensity: VisualDensity.standard,
                 selected: isSelected,
                 onSelected: (_) => _toggleFilter(filter.value),
                 selectedColor: AppTheme.primaryColor,
                 checkmarkColor: AppTheme.primaryText,
                 backgroundColor: Theme.of(context).cardColor,
-                side: BorderSide(
-                  color: isSelected
-                      ? AppTheme.primaryColor
-                      : Colors.grey.withOpacity(0.3),
-                  width: 1.5,
+                elevation: isSelected ? 2 : 0,
+                shadowColor: AppTheme.primaryColor.withOpacity(0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected
+                        ? AppTheme.primaryColor
+                        : (Theme.of(context).brightness == Brightness.dark
+                            ? Colors.grey.shade700
+                            : Colors.grey.shade300),
+                    width: isSelected ? 2 : 1.5,
+                  ),
+                ),
+                labelStyle: GoogleFonts.roboto(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  letterSpacing: 0.3,
                 ),
               ),
             ),

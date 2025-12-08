@@ -111,22 +111,35 @@ class _MonstersPageState extends State<MonstersPage> {
       body: ListenableBuilder(
         listenable: provider,
         builder: (context, _) {
+          if (provider.isLoading && provider.allMonsters.isEmpty) {
+            return const ShimmerList(itemCount: 8);
+          }
+
           if (provider.hasError && provider.allMonsters.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(32.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: AppTheme.errorColor,
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppTheme.errorColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: AppTheme.errorColor,
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                     Text(
                       'Error loading monsters',
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -188,14 +201,18 @@ class _MonstersPageState extends State<MonstersPage> {
                 child: hasResults
                     ? RefreshIndicator(
                         onRefresh: () => provider.refreshMonsters(),
+                        color: AppTheme.primaryColor,
                         child: GridView.builder(
                           controller: _scrollController,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 16,
+                          ),
                           cacheExtent: 500,
                           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
                             childAspectRatio: 0.75,
                           ),
                           itemCount: monsters.length + (provider.isLoadingMore ? 1 : 0),
@@ -273,18 +290,26 @@ class _MonstersPageState extends State<MonstersPage> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 10),
                                   Text(
                                     monster.name,
-                                    style: AppTheme.cardTitleStyle.copyWith(fontSize: 16),
+                                    style: AppTheme.cardTitleStyle.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   if (monster.type.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 6),
                                     Text(
                                       monster.type,
-                                      style: AppTheme.cardBodyStyle.copyWith(fontSize: 12),
+                                      style: AppTheme.cardSubtitleStyle.copyWith(
+                                        fontSize: 12,
+                                        color: Theme.of(context).brightness == Brightness.dark
+                                            ? Colors.grey.shade400
+                                            : Colors.grey.shade700,
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -300,33 +325,44 @@ class _MonstersPageState extends State<MonstersPage> {
                         ),
                       )
                     : Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              hasFilters ? Icons.filter_alt_off : Icons.pets,
-                              size: 64,
-                              color: Theme.of(context).iconTheme.color,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              hasFilters
-                                  ? 'No monsters match your filters'
-                                  : 'No monsters found',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            if (hasFilters) ...[
-                              const SizedBox(height: 8),
-                              TextButton(
-                                onPressed: () {
-                                  provider.setSearchQuery('');
-                                  provider.setSelectedTypes([]);
-                                  provider.setSelectedSpecies([]);
-                                },
-                                child: const Text('Clear filters'),
+                        child: Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                hasFilters ? Icons.filter_alt_off : Icons.pets,
+                                size: 80,
+                                color: Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade600
+                                    : Colors.grey.shade400,
                               ),
+                              const SizedBox(height: 20),
+                              Text(
+                                hasFilters
+                                    ? 'No monsters match your filters'
+                                    : 'No monsters found',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.grey.shade400
+                                      : Colors.grey.shade600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              if (hasFilters) ...[
+                                const SizedBox(height: 16),
+                                GradientButton(
+                                  text: 'Clear filters',
+                                  icon: Icons.clear_all,
+                                  onPressed: () {
+                                    provider.setSearchQuery('');
+                                    provider.setSelectedTypes([]);
+                                    provider.setSelectedSpecies([]);
+                                  },
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
               ),

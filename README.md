@@ -295,7 +295,11 @@ Questo progetto è rilasciato sotto licenza MIT. Vedi il file `LICENSE` per magg
 
 ## 📱 Screenshots
 
-_Schermate dell'applicazione (da aggiungere)_
+![Mockup 1](assets/mockup/Screenshot%202025-12-08%20111110-portrait.png)
+![Mockup 2](assets/mockup/Screenshot%202025-12-08%20111207-portrait.png)
+![Mockup 3](assets/mockup/Screenshot%202025-12-08%20111238-portrait.png)
+![Mockup 4](assets/mockup/Screenshot%202025-12-08%20111318-portrait.png)
+![Mockup 5](assets/mockup/Screenshot%202025-12-08%20111341-portrait.png)
 
 ---
 
