@@ -33,13 +33,16 @@ class MainNavigationPage extends StatefulWidget {
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int currentIndex = 0;
 
-  final List<Widget> pages = const [
-    HomePage(),
-    HubPage(),
-    MonstersPage(),
-    WeaponsPage(),
-    ArmorPage(),
-  ];
+  List<Widget> get pages => [
+        HomePage(
+          onThemeToggle: widget.onThemeToggle,
+          isDarkMode: widget.isDarkMode,
+        ),
+        const HubPage(),
+        const MonstersPage(),
+        const WeaponsPage(),
+        const ArmorPage(),
+      ];
 
   final List<NavigationItem> navigationItems = const [
     NavigationItem(icon: Icons.home, label: 'Home'),
@@ -313,7 +316,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),

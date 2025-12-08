@@ -20,19 +20,75 @@ Monster Hunter Compendium è un'app mobile completa che permette di consultare t
 
 ## 🎨 Design System
 
-### Palette Colori
+### 🎯 Palette Principale (Core Theme)
 
-- **Primario**: Deep Orange (#FF5722)
-- **Secondario**: Dark Brown (#3E2723)
-- **Accent/Highlight**: Verde Acido (#AEEA00)
-- **Background Chiaro**: Beige (#FFF8E1)
-- **Background Scuro**: Dark Grey (#212121)
-- **Testo Principale**: Bianco (#FFFFFF)
-- **Testo Secondario**: Light Grey (#B0BEC5)
-- **Bottoni Primari**: Gradient da Deep Orange a Dark Orange (#FF5722 → #E64A19)
-- **Alert/Error**: Red (#D32F2F)
-- **Success**: Green (#388E3C)
-- **Info**: Blue (#1976D2)
+Questa è la palette base che usiamo per UI, componenti principali e mood generale.
+
+| Nome | Hex | Mood |
+|------|-----|------|
+| **Dragon Steel** | `#3A3F44` | Metallo dark, base UI, come armatura Nergigante |
+| **Hunter Brown** | `#5B4734` | Cuoio, classico MH |
+| **Wyvern Gold** | `#D2A95B` | Oro vissuto, accenti premium |
+| **Tribal Red** | `#A3392C` | Rosso da caccia, sangue/energia |
+| **Ancient Bone** | `#E3D7C3` | Osso chiaro per UI light o highlight |
+| **Deep Forest** | `#26442A` | Foglia scura, atmosfera giungla |
+| **Ocean Scale** | `#3E6C7B` | Scaglie acquatiche, vibe Legiana / Mizutsune |
+| **Elder Purple** | `#6C4A7C` | Tono "elder dragon" mistico |
+
+### 🌑 Modalità Dark (consigliata per MH)
+
+Il tema perfetto per un'app da cacciatori notturni.
+
+| Ruolo | Hex |
+|-------|-----|
+| Background | `#1C1E20` |
+| Card / Surface | `#2B2F33` |
+| Border | `#3A3F44` |
+| Testo primario | `#EDEDED` |
+| Testo secondario | `#B9B9B9` |
+| Accent (Gold) | `#D2A95B` |
+| Accent Danger (Red) | `#A3392C` |
+
+### 🌕 Modalità Light (in stile libro del Grembiule)
+
+Per quando vuoi un mood più "manuale di caccia".
+
+| Ruolo | Hex |
+|-------|-----|
+| Background | `#F2EEE7` |
+| Card | `#E7E2DB` |
+| Border | `#C7C2B8` |
+| Testo primario | `#3A3F44` |
+| Testo secondario | `#5B5B5B` |
+| Accent Gold | `#C89A4D` |
+| Accent Green | `#4A6E4F` |
+
+### 🔥 Gradient ufficiali (per header, card rare, transizioni)
+
+1. **Elder Dragon Aura**: `#6C4A7C → #3A3F44`
+2. **Rathalos Blaze**: `#A3392C → #D2A95B`
+3. **Legiana Frost**: `#3E6C7B → #D2E7F1`
+4. **Nergigante Spike**: `#1C1E20 → #5B4734`
+
+### 🧱 Component Palette
+
+- **Button Primary**: Background `#D2A95B`, Text `#1C1E20`
+- **Button Secondary**: Background `#3A3F44`, Text `#EDEDED`
+- **Success**: `#4A6E4F`
+- **Warning**: `#D2A95B`
+- **Danger**: `#A3392C`
+- **Info**: `#3E6C7B`
+
+### 🖌️ Colori per Tipologie Mostri
+
+| Tipo | Colore |
+|------|--------|
+| Flying Wyvern | `#A3392C` |
+| Fanged Wyvern | `#5B4734` |
+| Piscine Wyvern | `#3E6C7B` |
+| Elder Dragon | `#6C4A7C` |
+| Bird Wyvern | `#C89A4D` |
+| Brute Wyvern | `#3A3F44` |
 
 ### Font
 
