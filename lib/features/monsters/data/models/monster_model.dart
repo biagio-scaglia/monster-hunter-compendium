@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../../shared/utils/monster_image_helper.dart';
 
 class MonsterModel {
   final int id;
@@ -76,6 +77,16 @@ class MonsterModel {
         : 'https://mhw-db.com' + (url.startsWith('/') ? url : '/$url');
     
     return finalUrl;
+  }
+
+  // Restituisce il path dell'immagine locale se disponibile, altrimenti null
+  String? get localImagePath {
+    return MonsterImageHelper.getLocalMonsterImagePath(name);
+  }
+
+  // Restituisce true se esiste un'immagine locale per questo mostro
+  bool get hasLocalImage {
+    return MonsterImageHelper.hasLocalImage(name);
   }
 
   Map<String, dynamic> toJson() {

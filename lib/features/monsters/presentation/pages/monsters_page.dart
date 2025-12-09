@@ -253,6 +253,54 @@ class _MonstersPageState extends State<MonstersPage> {
                                       ),
                                       child: Builder(
                                         builder: (context) {
+                                          // Prima controlla se esiste un'immagine locale
+                                          if (monster.hasLocalImage && monster.localImagePath != null) {
+                                            return ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: Image.asset(
+                                                monster.localImagePath!,
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  // Se l'immagine locale non viene caricata, usa l'icona dell'API
+                                                  if (monster.iconUrl != null) {
+                                                    return ClipRRect(
+                                                      borderRadius: BorderRadius.circular(8),
+                                                      child: FadeInImageWidget(
+                                                        imageUrl: monster.iconUrl!,
+                                                        width: double.infinity,
+                                                        height: double.infinity,
+                                                        fit: BoxFit.cover,
+                                                        placeholder: Center(
+                                                          child: Icon(
+                                                            Icons.pets,
+                                                            size: 48,
+                                                            color: Theme.of(context).iconTheme.color,
+                                                          ),
+                                                        ),
+                                                        errorWidget: Center(
+                                                          child: Icon(
+                                                            Icons.pets,
+                                                            size: 48,
+                                                            color: Theme.of(context).iconTheme.color,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                  return Center(
+                                                    child: Icon(
+                                                      Icons.pets,
+                                                      size: 48,
+                                                      color: Theme.of(context).iconTheme.color,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            );
+                                          }
+                                          // Altrimenti usa l'icona dell'API
                                           if (monster.iconUrl != null) {
                                             return ClipRRect(
                                               borderRadius: BorderRadius.circular(8),

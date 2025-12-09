@@ -336,7 +336,62 @@ class _MonsterDetailPageState extends State<MonsterDetailPage> {
   }
 
   Widget _buildMonsterImage() {
-    // Se c'è un'immagine, usala
+    // Prima controlla se esiste un'immagine locale
+    if (monster!.hasLocalImage && monster!.localImagePath != null) {
+      return Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset(
+            monster!.localImagePath!,
+            width: 300,
+            height: 300,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              // Se l'immagine locale non viene caricata, usa l'immagine dell'API
+              if (monster!.imageUrl != null) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: OptimizedImage(
+                    imageUrl: monster!.imageUrl,
+                    width: 150,
+                    height: 150,
+                    fit: BoxFit.contain,
+                  ),
+                );
+              }
+              if (monster!.iconUrl != null) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: OptimizedImage(
+                    imageUrl: monster!.iconUrl,
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.contain,
+                  ),
+                );
+              }
+              return Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.pets,
+                    size: 100,
+                    color: Colors.grey,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+    
+    // Se c'è un'immagine dall'API, usala
     if (monster!.imageUrl != null) {
       return Center(
         child: ClipRRect(
